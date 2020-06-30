@@ -84,12 +84,7 @@ public class AnnotatedApi extends Api implements PermissionNameProvider , Closea
     return getApis(obj.getClass(), obj);
   }
   public static List<Api> getApis(Class<? extends Object> theClass , Object obj)  {
-    Class<?> klas = null;
-    try {
-      klas = MethodHandles.publicLookup().accessClass(theClass);
-    } catch (IllegalAccessException e) {
-      throw new SolrException(SolrException.ErrorCode.SERVER_ERROR, "Method may be non-public/inaccessible", e);
-    }
+    final Class<?> klas = checkPublic(theClass);
     if (klas.getAnnotation(EndPoint.class) != null) {
       EndPoint endPoint = klas.getAnnotation(EndPoint.class);
       List<Method> methods = new ArrayList<>();
@@ -123,6 +118,14 @@ public class AnnotatedApi extends Api implements PermissionNameProvider , Closea
       }
 
       return apis;
+    }
+  }
+
+  private static Class<?> checkPublic(Class<?> theClass) {
+    try {
+     return MethodHandles.publicLookup().accessClass(theClass);
+    } catch (IllegalAccessException e) {
+      throw new SolrException(SolrException.ErrorCode.SERVER_ERROR, "Method may be non-public/inaccessible", e);
     }
   }
 

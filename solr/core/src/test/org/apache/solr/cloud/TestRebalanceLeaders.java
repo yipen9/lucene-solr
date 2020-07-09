@@ -530,7 +530,7 @@ public class TestRebalanceLeaders extends SolrCloudTestCase {
 
       for (Slice slice : docCollection.getSlices()) {
         for (Replica rep : slice.getReplicas()) {
-          if (downJettyNodes.contains(rep.getNodeName()) == false) {
+          if (downJettyNodes.contains(rep.getNode()) == false) {
             continue; // We are on a live node
           }
           // A replica on an allegedly down node is reported as active.
@@ -587,7 +587,7 @@ public class TestRebalanceLeaders extends SolrCloudTestCase {
       Replica changedRep = null;
       int livePos = Integer.MAX_VALUE;
       for (Replica rep : slice.getReplicas()) {
-        int pos = liveNodes.indexOf(rep.getNodeName());
+        int pos = liveNodes.indexOf(rep.getNode());
         if (pos >= 0 && pos < livePos) {
           livePos = pos;
           changedRep = rep;

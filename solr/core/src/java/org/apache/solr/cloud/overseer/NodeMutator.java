@@ -57,7 +57,7 @@ public class NodeMutator {
 
         Collection<Replica> replicas = slice.getReplicas();
         for (Replica replica : replicas) {
-          String rNodeName = replica.getNodeName();
+          String rNodeName = replica.getNode();
           if (rNodeName == null) {
             throw new RuntimeException("Replica without node name! " + replica);
           }

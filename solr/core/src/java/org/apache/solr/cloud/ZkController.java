@@ -730,7 +730,7 @@ public class ZkController implements Closeable {
     int numActiveReplicas = shard.getReplicas(
         rep -> rep.getState() == Replica.State.ACTIVE
             && rep.getType() != Type.PULL
-            && getClusterState().getLiveNodes().contains(rep.getNodeName())
+            && getClusterState().getLiveNodes().contains(rep.getNode())
     ).size();
 
     // at least the leader still be able to search, we should give up leadership if other replicas can take over
@@ -1355,7 +1355,7 @@ public class ZkController implements Closeable {
 
     Replica replica = slice.getReplica(coreNodeName);
     if (replica == null) return null;
-    if (!getNodeName().equals(replica.getNodeName())) return null;
+    if (!getNodeName().equals(replica.getNode())) return null;
 
     return replica;
   }
@@ -1857,7 +1857,7 @@ public class ZkController implements Closeable {
       Replica replica = zkStateReader.getClusterState().getCollection(cloudDesc.getCollectionName())
           .getSlice(cloudDesc.getShardId())
           .getReplica(cloudDesc.getCoreNodeName());
-      return !replica.getNodeName().equals(getNodeName());
+      return !replica.getNode().equals(getNodeName());
   }
 
   private void checkStateInZk(CoreDescriptor cd) throws InterruptedException, NotInClusterStateException {

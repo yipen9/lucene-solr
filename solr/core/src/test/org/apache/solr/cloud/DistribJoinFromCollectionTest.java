@@ -92,7 +92,7 @@ public class DistribJoinFromCollectionTest extends SolrCloudTestCase{
     ClusterState cs = zkStateReader.getClusterState();
     for (Slice slice : cs.getCollection(toColl).getActiveSlices())
       for (Replica replica : slice.getReplicas())
-        nodeSet.add(replica.getNodeName());
+        nodeSet.add(replica.getNode());
     assertTrue(nodeSet.size() > 0);
 
     // deploy the "from" collection to all nodes where the "to" collection exists

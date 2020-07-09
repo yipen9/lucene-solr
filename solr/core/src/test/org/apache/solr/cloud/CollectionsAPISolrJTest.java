@@ -522,7 +522,7 @@ public class CollectionsAPISolrJTest extends SolrCloudTestCase {
     Replica newReplica = grabNewReplica(response, getCollectionState(collectionName));
     assertEquals(0, response.getStatus());
     assertTrue(response.isSuccess());
-    assertTrue(newReplica.getNodeName().equals(node));
+    assertTrue(newReplica.getNode().equals(node));
 
     // Test DELETEREPLICA
     response = CollectionAdminRequest.deleteReplica(collectionName, "shard1", newReplica.getName())
@@ -657,7 +657,7 @@ public class CollectionsAPISolrJTest extends SolrCloudTestCase {
     // test for replicas not active - SOLR-13882
     DocCollection coll = cluster.getSolrClient().getClusterStateProvider().getClusterState().getCollection(collectionName);
     Replica firstReplica = coll.getSlice("shard1").getReplicas().iterator().next();
-    String firstNode = firstReplica.getNodeName();
+    String firstNode = firstReplica.getNode();
     for (JettySolrRunner jetty : cluster.getJettySolrRunners()) {
       if (jetty.getNodeName().equals(firstNode)) {
         cluster.stopJettySolrRunner(jetty);

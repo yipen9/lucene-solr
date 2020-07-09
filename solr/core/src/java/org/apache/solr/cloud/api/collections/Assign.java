@@ -421,7 +421,7 @@ public class Assign {
       for (Slice slice : c.getSlices()) {
         Collection<Replica> replicas = slice.getReplicas();
         for (Replica replica : replicas) {
-          ReplicaCount count = nodeNameVsShardCount.get(replica.getNodeName());
+          ReplicaCount count = nodeNameVsShardCount.get(replica.getNode());
           if (count != null) {
             count.totalNodes++; // Used to "weigh" whether this node should be used later.
             if (entry.getKey().equals(collectionName)) {
@@ -614,9 +614,9 @@ public class Assign {
           LinkedHashMap<String, Integer> n = new LinkedHashMap<>();
           shardVsNodes.put(slice.getName(), n);
           for (Replica replica : slice.getReplicas()) {
-            Integer count = n.get(replica.getNodeName());
+            Integer count = n.get(replica.getNode());
             if (count == null) count = 0;
-            n.put(replica.getNodeName(), ++count);
+            n.put(replica.getNode(), ++count);
           }
         }
       }

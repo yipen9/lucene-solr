@@ -312,7 +312,7 @@ public class ScoreJoinQParserPlugin extends QParserPlugin {
             "SolrCloud join: To join with a sharded collection, use method=crossCollection.");
 
       for (Replica replica : slice.getReplicas()) {
-        if (replica.getNodeName().equals(nodeName)) {
+        if (replica.getNode().equals(nodeName)) {
           fromReplica = replica.getStr(ZkStateReader.CORE_NAME_PROP);
           // found local replica, but is it Active?
           if (replica.getState() != Replica.State.ACTIVE)

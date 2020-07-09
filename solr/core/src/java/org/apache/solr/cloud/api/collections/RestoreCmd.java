@@ -330,7 +330,7 @@ public class RestoreCmd implements OverseerCollectionMessageHandler.Cmd {
 
         for (Slice s : restoreCollection.getSlices()) {
           for (Replica r : s.getReplicas()) {
-            String nodeName = r.getNodeName();
+            String nodeName = r.getNode();
             String coreNodeName = r.getCoreName();
             Replica.State stateRep = r.getState();
 

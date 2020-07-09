@@ -122,7 +122,7 @@ public class DeleteSnapshotCmd implements OverseerCollectionMessageHandler.Cmd {
           params.set(CoreAdminParams.COMMIT_NAME, commitName);
 
           log.info("Sending deletesnapshot request to core={} with commitName={}", coreName, commitName);
-          shardRequestTracker.sendShardRequest(replica.getNodeName(), params, shardHandler);
+          shardRequestTracker.sendShardRequest(replica.getNode(), params, shardHandler);
         }
       }
     }

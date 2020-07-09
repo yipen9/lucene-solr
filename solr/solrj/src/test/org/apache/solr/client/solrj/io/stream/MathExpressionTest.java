@@ -4044,7 +4044,7 @@ public void testCache() throws Exception {
     ClusterState clusterState = cluster.getSolrClient().getClusterStateProvider().getClusterState();
     String collection = useAlias ? COLLECTIONORALIAS + "_collection" : COLLECTIONORALIAS;
     DocCollection coll = clusterState.getCollection(collection);
-    String node = coll.getReplicas().iterator().next().getNodeName();
+    String node = coll.getReplicas().iterator().next().getNode();
     String url = null;
     for (JettySolrRunner jetty : cluster.getJettySolrRunners()) {
       if (jetty.getNodeName().equals(node)) {

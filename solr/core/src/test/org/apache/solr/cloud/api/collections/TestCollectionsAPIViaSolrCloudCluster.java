@@ -141,9 +141,9 @@ public class TestCollectionsAPIViaSolrCloudCluster extends SolrCloudTestCase {
     Collection<Slice> slices = clusterState.getCollection(collectionName).getSlices();
     // track the servers not host replicas
     for (Slice slice : slices) {
-      jettyMap.remove(slice.getLeader().getNodeName().replace("_solr", "/solr"));
+      jettyMap.remove(slice.getLeader().getNode().replace("_solr", "/solr"));
       for (Replica replica : slice.getReplicas()) {
-        jettyMap.remove(replica.getNodeName().replace("_solr", "/solr"));
+        jettyMap.remove(replica.getNode().replace("_solr", "/solr"));
       }
     }
     assertTrue("Expected to find a node without a replica", jettyMap.size() > 0);
@@ -249,9 +249,9 @@ public class TestCollectionsAPIViaSolrCloudCluster extends SolrCloudTestCase {
       final Map<String,Boolean> shardLeaderMap = new HashMap<>();
       for (final Slice slice : clusterState.getCollection(collectionName).getSlices()) {
         for (final Replica replica : slice.getReplicas()) {
-          shardLeaderMap.put(replica.getNodeName().replace("_solr", "/solr"), Boolean.FALSE);
+          shardLeaderMap.put(replica.getNode().replace("_solr", "/solr"), Boolean.FALSE);
         }
-        shardLeaderMap.put(slice.getLeader().getNodeName().replace("_solr", "/solr"), Boolean.TRUE);
+        shardLeaderMap.put(slice.getLeader().getNode().replace("_solr", "/solr"), Boolean.TRUE);
       }
       for (int ii = 0; ii < jettys.size(); ++ii) {
         final URL jettyBaseUrl = jettys.get(ii).getBaseUrl();

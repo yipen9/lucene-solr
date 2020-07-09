@@ -242,7 +242,7 @@ public class ReplaceNodeCmd implements OverseerCollectionMessageHandler.Cmd {
     for (Map.Entry<String, DocCollection> e : state.getCollectionsMap().entrySet()) {
       for (Slice slice : e.getValue().getSlices()) {
         for (Replica replica : slice.getReplicas()) {
-          if (source.equals(replica.getNodeName())) {
+          if (source.equals(replica.getNode())) {
             ZkNodeProps props = new ZkNodeProps(
                 COLLECTION_PROP, e.getKey(),
                 SHARD_ID_PROP, slice.getName(),

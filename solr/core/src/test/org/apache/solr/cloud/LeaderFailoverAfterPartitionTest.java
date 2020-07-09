@@ -106,7 +106,7 @@ public class LeaderFailoverAfterPartitionTest extends HttpPartitionTest {
         
     Replica leader = 
         cloudClient.getZkStateReader().getLeaderRetry(testCollectionName, "shard1");
-    String leaderNode = leader.getNodeName();
+    String leaderNode = leader.getNode();
     assertNotNull("Could not find leader for shard1 of "+
       testCollectionName+"; clusterState: "+printClusterStateInfo(testCollectionName), leader);
     JettySolrRunner leaderJetty = getJettyOnPort(getReplicaPort(leader));
@@ -130,7 +130,7 @@ public class LeaderFailoverAfterPartitionTest extends HttpPartitionTest {
   
     Thread.sleep(sleepMsBeforeHealPartition);
     
-    String shouldNotBeNewLeaderNode = notLeaders.get(0).getNodeName();
+    String shouldNotBeNewLeaderNode = notLeaders.get(0).getNode();
 
     //chaosMonkey.expireSession(leaderJetty);
     // kill the leader
@@ -156,7 +156,7 @@ public class LeaderFailoverAfterPartitionTest extends HttpPartitionTest {
     assertTrue("Expected node "+shouldNotBeNewLeaderNode+
         " to NOT be the new leader b/c it was out-of-sync with the old leader! ClusterState: "+
         printClusterStateInfo(testCollectionName),
-        !shouldNotBeNewLeaderNode.equals(newLeader.getNodeName()));
+        !shouldNotBeNewLeaderNode.equals(newLeader.getNode()));
     
     proxy0.reopen();
     

@@ -36,8 +36,8 @@ public class NodePreferenceRulesComparatorTest extends SolrTestCaseJ4 {
     List<PreferenceRule> rules = PreferenceRule.from(ShardParams.SHARDS_PREFERENCE_REPLICA_LOCATION + ":http://host2:8983");
     NodePreferenceRulesComparator comparator = new NodePreferenceRulesComparator(rules, null);
     replicas.sort(comparator);
-    assertEquals("node2", replicas.get(0).getNodeName());
-    assertEquals("node1", replicas.get(1).getNodeName());
+    assertEquals("node2", replicas.get(0).getNode());
+    assertEquals("node1", replicas.get(1).getNode());
 
   }
 
@@ -49,8 +49,8 @@ public class NodePreferenceRulesComparatorTest extends SolrTestCaseJ4 {
     NodePreferenceRulesComparator comparator = new NodePreferenceRulesComparator(rules, null);
 
     replicas.sort(comparator);
-    assertEquals("node1", replicas.get(0).getNodeName());
-    assertEquals("node2", replicas.get(1).getNodeName());
+    assertEquals("node1", replicas.get(0).getNode());
+    assertEquals("node2", replicas.get(1).getNode());
 
     // reversed rule
     rules = PreferenceRule.from(ShardParams.SHARDS_PREFERENCE_REPLICA_TYPE + ":TLOG," +
@@ -58,8 +58,8 @@ public class NodePreferenceRulesComparatorTest extends SolrTestCaseJ4 {
     comparator = new NodePreferenceRulesComparator(rules, null);
 
     replicas.sort(comparator);
-    assertEquals("node2", replicas.get(0).getNodeName());
-    assertEquals("node1", replicas.get(1).getNodeName());
+    assertEquals("node2", replicas.get(0).getNode());
+    assertEquals("node1", replicas.get(1).getNode());
   }
 
   @SuppressWarnings("unchecked")
@@ -86,10 +86,10 @@ public class NodePreferenceRulesComparatorTest extends SolrTestCaseJ4 {
     NodePreferenceRulesComparator comparator = new NodePreferenceRulesComparator(rules, null);
 
     replicas.sort(comparator);
-    assertEquals("node1", replicas.get(0).getNodeName());
-    assertEquals("node4", replicas.get(1).getNodeName());
-    assertEquals("node2", replicas.get(2).getNodeName());
-    assertEquals("node3", replicas.get(3).getNodeName());
+    assertEquals("node1", replicas.get(0).getNode());
+    assertEquals("node4", replicas.get(1).getNode());
+    assertEquals("node2", replicas.get(2).getNode());
+    assertEquals("node3", replicas.get(3).getNode());
   }
 
   @Test(expected = IllegalArgumentException.class)

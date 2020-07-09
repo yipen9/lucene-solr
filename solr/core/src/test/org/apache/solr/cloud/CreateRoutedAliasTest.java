@@ -153,7 +153,7 @@ public class CreateRoutedAliasTest extends SolrCloudTestCase {
     assertEquals(1, coll.getNumPullReplicas().intValue()); // per-shard
     assertTrue("nodeSet didn't work?",
         coll.getSlices().stream().flatMap(s -> s.getReplicas().stream())
-            .map(Replica::getNodeName).allMatch(createNode::equals));
+            .map(Replica::getNode).allMatch(createNode::equals));
 
     // Test Alias metadata:
     Aliases aliases = cluster.getSolrClient().getZkStateReader().getAliases();

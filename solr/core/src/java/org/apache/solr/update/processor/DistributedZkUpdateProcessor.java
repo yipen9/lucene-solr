@@ -698,7 +698,7 @@ public class DistributedZkUpdateProcessor extends DistributedUpdateProcessor {
               log.debug("skip url:{} cause its term is less than leader", replica.getCoreUrl());
             }
             skippedCoreNodeNames.add(replica.getName());
-          } else if (!clusterState.getLiveNodes().contains(replica.getNodeName()) || replica.getState() == Replica.State.DOWN) {
+          } else if (!clusterState.getLiveNodes().contains(replica.getNode()) || replica.getState() == Replica.State.DOWN) {
             skippedCoreNodeNames.add(replica.getName());
           } else {
             nodes.add(new SolrCmdDistributor.StdNode(new ZkCoreNodeProps(replica), collection, shardId, maxRetriesToFollowers));
@@ -854,7 +854,7 @@ public class DistributedZkUpdateProcessor extends DistributedUpdateProcessor {
           log.debug("skip url:{} cause its term is less than leader", replica.getCoreUrl());
         }
         skippedCoreNodeNames.add(replica.getName());
-      } else if (!clusterState.getLiveNodes().contains(replica.getNodeName())
+      } else if (!clusterState.getLiveNodes().contains(replica.getNode())
           || replica.getState() == Replica.State.DOWN) {
         skippedCoreNodeNames.add(replica.getName());
       } else {
@@ -879,7 +879,7 @@ public class DistributedZkUpdateProcessor extends DistributedUpdateProcessor {
                 || coll.getRouter().isTargetSlice(docId, doc, req.getParams(), aslice.getName(), coll))) {
           Replica sliceLeader = aslice.getLeader();
           // slice leader can be null because node/shard is created zk before leader election
-          if (sliceLeader != null && clusterState.liveNodesContain(sliceLeader.getNodeName()))  {
+          if (sliceLeader != null && clusterState.liveNodesContain(sliceLeader.getNode()))  {
             if (nodes == null) nodes = new ArrayList<>();
             ZkCoreNodeProps nodeProps = new ZkCoreNodeProps(sliceLeader);
             nodes.add(new SolrCmdDistributor.StdNode(nodeProps, coll.getName(), aslice.getName()));

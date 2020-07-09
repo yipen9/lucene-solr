@@ -160,7 +160,7 @@ public abstract class TupleStream implements Closeable, Serializable, MapWriter 
       for(Slice slice : slices) {
         List<Replica> sortedReplicas = new ArrayList<>();
         for(Replica replica : slice.getReplicas()) {
-          if(replica.getState() == Replica.State.ACTIVE && liveNodes.contains(replica.getNodeName())) {
+          if(replica.getState() == Replica.State.ACTIVE && liveNodes.contains(replica.getNode())) {
             sortedReplicas.add(replica);
           }
         }

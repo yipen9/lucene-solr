@@ -117,7 +117,7 @@ public class AutoScalingHandlerTest extends SolrCloudTestCase {
     String configPayload = "{\n" +
         "  'cluster-policy': [{'replica': 0, 'node': '_NODE'}]\n" +
         "}";
-    configPayload = configPayload.replaceAll("_NODE", aReplica.getNodeName());
+    configPayload = configPayload.replaceAll("_NODE", aReplica.getNode());
     @SuppressWarnings({"rawtypes"})
     SolrRequest req = AutoScalingRequest.create(SolrRequest.METHOD.POST, "/suggestions", configPayload);
     NamedList<Object> response = solrClient.request(req);
@@ -125,7 +125,7 @@ public class AutoScalingHandlerTest extends SolrCloudTestCase {
     String replicaName = response._getStr("suggestions[0]/operation/command/move-replica/replica", null);
     boolean[] passed = new boolean[]{false};
     collection.forEachReplica((s, replica) -> {
-      if (replica.getName().equals(replicaName) && replica.getNodeName().equals(aReplica.getNodeName())) {
+      if (replica.getName().equals(replicaName) && replica.getNode().equals(aReplica.getNode())) {
         passed[0] = true;
       }
     });
@@ -150,7 +150,7 @@ public class AutoScalingHandlerTest extends SolrCloudTestCase {
     String configPayload = "{\n" +
         "  'cluster-policy': [{'replica': 0, 'node': '_NODE'}]\n" +
         "}";
-    configPayload = configPayload.replaceAll("_NODE", aReplica.getNodeName());
+    configPayload = configPayload.replaceAll("_NODE", aReplica.getNode());
     @SuppressWarnings({"rawtypes"})
     SolrRequest req = AutoScalingRequest.create(SolrRequest.METHOD.POST, "/diagnostics", configPayload);
     NamedList<Object> response = solrClient.request(req);

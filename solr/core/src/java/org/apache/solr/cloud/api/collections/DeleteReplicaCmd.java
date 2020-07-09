@@ -245,10 +245,10 @@ public class DeleteReplicaCmd implements Cmd {
     params.set(CoreAdminParams.DELETE_DATA_DIR, message.getBool(CoreAdminParams.DELETE_DATA_DIR, true));
     params.set(CoreAdminParams.DELETE_METRICS_HISTORY, message.getBool(CoreAdminParams.DELETE_METRICS_HISTORY, true));
 
-    boolean isLive = ocmh.zkStateReader.getClusterState().getLiveNodes().contains(replica.getNodeName());
+    boolean isLive = ocmh.zkStateReader.getClusterState().getLiveNodes().contains(replica.getNode());
     final ShardRequestTracker shardRequestTracker = ocmh.asyncRequestTracker(asyncId);
     if (isLive) {
-      shardRequestTracker.sendShardRequest(replica.getNodeName(), params, shardHandler);
+      shardRequestTracker.sendShardRequest(replica.getNode(), params, shardHandler);
     }
 
     Callable<Boolean> callable = () -> {

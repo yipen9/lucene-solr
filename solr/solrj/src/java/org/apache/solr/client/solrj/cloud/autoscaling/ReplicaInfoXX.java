@@ -35,7 +35,7 @@ import static org.apache.solr.common.ConditionalMapWriter.NON_NULL_VAL;
 import static org.apache.solr.common.ConditionalMapWriter.dedupeKeyPredicate;
 import static org.apache.solr.common.cloud.ZkStateReader.LEADER_PROP;
 
-public class ReplicaInfo implements MapWriter {
+public class ReplicaInfoXX implements MapWriter {
   private final String name;
   private final String core, collection, shard;
   private final Replica.Type type;
@@ -43,13 +43,13 @@ public class ReplicaInfo implements MapWriter {
   public final boolean isLeader;
   private final Map<String, Object> variables = new HashMap<>();
 
-  public ReplicaInfo(String coll, String shard, Replica r, Map<String, Object> vals) {
+  public ReplicaInfoXX(String coll, String shard, Replica r, Map<String, Object> vals) {
     this.name = r.getName();
     this.core = r.getCoreName();
     this.collection = coll;
     this.shard = shard;
     this.type = r.getType();
-    this.node = r.getNodeName();
+    this.node = r.getNode();
     boolean maybeLeader = r.getBool(LEADER_PROP, false);
     if (vals != null) {
       this.variables.putAll(vals);
@@ -59,7 +59,7 @@ public class ReplicaInfo implements MapWriter {
     validate();
   }
 
-  public ReplicaInfo(String name, String core, String coll, String shard, Replica.Type type, String node, Map<String, Object> vals) {
+  public ReplicaInfoXX(String name, String core, String coll, String shard, Replica.Type type, String node, Map<String, Object> vals) {
     if (vals == null) vals = Collections.emptyMap();
     this.name = name;
     if (vals != null) {
@@ -75,7 +75,7 @@ public class ReplicaInfo implements MapWriter {
   }
 
   @SuppressWarnings({"unchecked"})
-  public ReplicaInfo(Map<String, Object> map) {
+  public ReplicaInfoXX(Map<String, Object> map) {
     this.name = map.keySet().iterator().next();
     @SuppressWarnings({"rawtypes"})Map details = (Map) map.get(name);
     details = Utils.getDeepCopy(details, 4);
@@ -101,7 +101,7 @@ public class ReplicaInfo implements MapWriter {
   }
 
   public Object clone() {
-    return new ReplicaInfo(name, core, collection, shard, type, node, new HashMap<>(variables));
+    return new ReplicaInfoXX(name, core, collection, shard, type, node, new HashMap<>(variables));
   }
 
   @Override
@@ -158,15 +158,15 @@ public class ReplicaInfo implements MapWriter {
     }
   }
 
-  public Map<String, Object> getVariables() {
+  public Map<String, Object> getProperties() {
     return variables;
   }
 
-  public Object getVariable(String name) {
+  public Object get(String name) {
     return variables.get(name);
   }
 
-  public Object getVariable(String name, Object defValue) {
+  public Object get(String name, Object defValue) {
     Object o = variables.get(name);
     if (o != null) {
       return o;
@@ -176,7 +176,7 @@ public class ReplicaInfo implements MapWriter {
   }
 
   public boolean getBool(String name, boolean defValue) {
-    Object o = getVariable(name, defValue);
+    Object o = get(name, defValue);
     if (o instanceof Boolean) {
       return (Boolean)o;
     } else {
@@ -189,10 +189,10 @@ public class ReplicaInfo implements MapWriter {
     if (o == null) {
       return false;
     }
-    if (!(o instanceof ReplicaInfo)) {
+    if (!(o instanceof ReplicaInfoXX)) {
       return false;
     }
-    ReplicaInfo other = (ReplicaInfo)o;
+    ReplicaInfoXX other = (ReplicaInfoXX)o;
     if (
         name.equals(other.name) &&
         collection.equals(other.collection) &&

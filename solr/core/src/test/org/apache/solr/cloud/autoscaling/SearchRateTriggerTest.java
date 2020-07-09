@@ -149,7 +149,7 @@ public class SearchRateTriggerTest extends SolrCloudTestCase {
         assertEquals(1, infos.size());
         ReplicaInfo info = infos.get(0);
         assertEquals(coreName, info.getCore());
-        assertTrue((Double)info.getVariable(AutoScalingParams.RATE) > rate);
+        assertTrue((Double)info.get(AutoScalingParams.RATE) > rate);
       }
       // close that jetty to remove the violation - alternatively wait for 1 min...
       JettySolrRunner j = cluster.stopJettySolrRunner(1);

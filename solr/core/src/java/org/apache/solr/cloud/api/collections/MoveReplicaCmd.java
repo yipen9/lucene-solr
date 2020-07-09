@@ -117,7 +117,7 @@ public class MoveReplicaCmd implements OverseerCollectionMessageHandler.Cmd {
         throw new SolrException(SolrException.ErrorCode.BAD_REQUEST, "'" + SHARD_ID_PROP + "' is a required param");
       }
       Slice slice = coll.getSlice(shardId);
-      List<Replica> sliceReplicas = new ArrayList<>(slice.getReplicas(r -> sourceNode.equals(r.getNodeName())));
+      List<Replica> sliceReplicas = new ArrayList<>(slice.getReplicas(r -> sourceNode.equals(r.getNode())));
       if (sliceReplicas.isEmpty()) {
         throw new SolrException(SolrException.ErrorCode.BAD_REQUEST,
             "Collection: " + collection + " node: " + sourceNode + " does not have any replica belonging to shard: " + shardId);
@@ -128,18 +128,18 @@ public class MoveReplicaCmd implements OverseerCollectionMessageHandler.Cmd {
 
     if (coll.getStr(CollectionAdminParams.COLOCATED_WITH) != null) {
       // we must ensure that moving this replica does not cause the co-location to break
-      String sourceNode = replica.getNodeName();
+      String sourceNode = replica.getNode();
       String colocatedCollectionName = coll.getStr(CollectionAdminParams.COLOCATED_WITH);
       DocCollection colocatedCollection = clusterState.getCollectionOrNull(colocatedCollectionName);
       if (colocatedCollection != null) {
-        if (colocatedCollection.getReplica((s, r) -> sourceNode.equals(r.getNodeName())) != null) {
+        if (colocatedCollection.getReplica((s, r) -> sourceNode.equals(r.getNode())) != null) {
           // check if we have at least two replicas of the collection on the source node
           // only then it is okay to move one out to another node
-          List<Replica> replicasOnSourceNode = coll.getReplicas(replica.getNodeName());
+          List<Replica> replicasOnSourceNode = coll.getReplicas(replica.getNode());
           if (replicasOnSourceNode == null || replicasOnSourceNode.size() < 2) {
             throw new SolrException(SolrException.ErrorCode.BAD_REQUEST,
                 "Collection: " + collection + " is co-located with collection: " + colocatedCollectionName
-                    + " and has a single replica: " + replica.getName() + " on node: " + replica.getNodeName()
+                    + " and has a single replica: " + replica.getName() + " on node: " + replica.getNode()
                     + " so it is not possible to move it to another node");
           }
         }
@@ -170,7 +170,7 @@ public class MoveReplicaCmd implements OverseerCollectionMessageHandler.Cmd {
   private void moveHdfsReplica(ClusterState clusterState, @SuppressWarnings({"rawtypes"})NamedList results, String dataDir, String targetNode, String async,
                                  DocCollection coll, Replica replica, Slice slice, int timeout, boolean waitForFinalState) throws Exception {
     String skipCreateReplicaInClusterState = "true";
-    if (clusterState.getLiveNodes().contains(replica.getNodeName())) {
+    if (clusterState.getLiveNodes().contains(replica.getNode())) {
       skipCreateReplicaInClusterState = "false";
       ZkNodeProps removeReplicasProps = new ZkNodeProps(
           COLLECTION_PROP, coll.getName(),
@@ -236,7 +236,7 @@ public class MoveReplicaCmd implements OverseerCollectionMessageHandler.Cmd {
           " on node=%s, failure=%s", coll.getName(), slice.getName(), targetNode, addResult.get("failure"));
       results.add("failure", errorString);
       log.warn("Error adding replica {} - trying to roll back...",  addReplicasProps, e);
-      addReplicasProps = addReplicasProps.plus(CoreAdminParams.NODE, replica.getNodeName());
+      addReplicasProps = addReplicasProps.plus(CoreAdminParams.NODE, replica.getNode());
       @SuppressWarnings({"rawtypes"})
       NamedList rollback = new NamedList();
       ocmh.addReplica(ocmh.zkStateReader.getClusterState(), addReplicasProps, rollback, null);
@@ -253,7 +253,7 @@ public class MoveReplicaCmd implements OverseerCollectionMessageHandler.Cmd {
       results.add("failure", errorString);
       log.debug("--- trying to roll back...");
       // try to roll back
-      addReplicasProps = addReplicasProps.plus(CoreAdminParams.NODE, replica.getNodeName());
+      addReplicasProps = addReplicasProps.plus(CoreAdminParams.NODE, replica.getNode());
       @SuppressWarnings({"rawtypes"})
       NamedList rollback = new NamedList();
       try {
@@ -269,7 +269,7 @@ public class MoveReplicaCmd implements OverseerCollectionMessageHandler.Cmd {
       return;
     } else {
       String successString = String.format(Locale.ROOT, "MOVEREPLICA action completed successfully, moved replica=%s at node=%s " +
-          "to replica=%s at node=%s", replica.getCoreName(), replica.getNodeName(), replica.getCoreName(), targetNode);
+          "to replica=%s at node=%s", replica.getCoreName(), replica.getNode(), replica.getCoreName(), targetNode);
       results.add("success", successString);
     }
   }
@@ -346,7 +346,7 @@ public class MoveReplicaCmd implements OverseerCollectionMessageHandler.Cmd {
       results.add("failure", errorString);
     } else {
       String successString = String.format(Locale.ROOT, "MOVEREPLICA action completed successfully, moved replica=%s at node=%s " +
-          "to replica=%s at node=%s", replica.getCoreName(), replica.getNodeName(), newCoreName, targetNode);
+          "to replica=%s at node=%s", replica.getCoreName(), replica.getNode(), newCoreName, targetNode);
       results.add("success", successString);
     }
   }

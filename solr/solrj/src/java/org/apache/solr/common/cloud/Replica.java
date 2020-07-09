@@ -16,13 +16,22 @@
  */
 package org.apache.solr.common.cloud;
 
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.BiPredicate;
 
+import org.apache.solr.common.MapWriter;
 import org.apache.solr.common.util.Utils;
-public class Replica extends ZkNodeProps {
+
+import static org.apache.solr.common.ConditionalMapWriter.NON_NULL_VAL;
+import static org.apache.solr.common.ConditionalMapWriter.dedupeKeyPredicate;
+
+public class Replica extends ZkNodeProps implements MapWriter {
   
   /**
    * The replica's state. In general, if the node the replica is hosted on is
@@ -36,7 +45,7 @@ public class Replica extends ZkNodeProps {
      * <p>
      * <b>NOTE</b>: when the node the replica is hosted on crashes, the
      * replica's state may remain ACTIVE in ZK. To determine if the replica is
-     * truly active, you must also verify that its {@link Replica#getNodeName()
+     * truly active, you must also verify that its {@link Replica#getNode()
      * node} is under {@code /live_nodes} in ZK (or use
      * {@link ClusterState#liveNodesContain(String)}).
      * </p>
@@ -106,40 +115,93 @@ public class Replica extends ZkNodeProps {
     }
   }
 
-  private final String name;
-  private final String nodeName;
-  private final String core;
-  private final State state;
-  private final Type type;
-  public final String slice, collection;
+  // coreNode name
+  public final String name;
+  public final String node;
+  public final String core;
+  public final State state;
+  public final Type type;
+  public final String shard, collection;
+  public final boolean isLeader;
 
-  public Replica(String name, Map<String,Object> propMap, String collection, String slice) {
-    super(propMap);
+  public Replica(String name, Map<String,Object> map, String collection, String shard) {
+    super(new HashMap<>());
     this.collection = collection;
-    this.slice = slice;
+    map.remove(ZkStateReader.COLLECTION_PROP);
+    this.shard = shard;
+    map.remove(ZkStateReader.SHARD_ID_PROP);
     this.name = name;
-    this.nodeName = (String) propMap.get(ZkStateReader.NODE_NAME_PROP);
-    this.core = (String) propMap.get(ZkStateReader.CORE_NAME_PROP);
-    type = Type.get((String) propMap.get(ZkStateReader.REPLICA_TYPE));
-    Objects.requireNonNull(this.collection, "'collection' must not be null");
-    Objects.requireNonNull(this.slice, "'slice' must not be null");
-    Objects.requireNonNull(this.name, "'name' must not be null");
-    Objects.requireNonNull(this.nodeName, "'node_name' must not be null");
-    Objects.requireNonNull(this.core, "'core' must not be null");
-    Objects.requireNonNull(this.type, "'type' must not be null");
+    map.remove(ZkStateReader.CORE_NODE_NAME_PROP);
+    this.node = (String) map.get(ZkStateReader.NODE_NAME_PROP);
+    map.remove(ZkStateReader.NODE_NAME_PROP);
+    this.core = (String) map.get(ZkStateReader.CORE_NAME_PROP);
+    map.remove(ZkStateReader.CORE_NAME_PROP);
+    type = Type.get((String) map.remove(ZkStateReader.REPLICA_TYPE));
     if (propMap.get(ZkStateReader.STATE_PROP) != null) {
-      this.state = State.getState((String) propMap.get(ZkStateReader.STATE_PROP));
+      this.state = State.getState((String) map.remove(ZkStateReader.STATE_PROP));
     } else {
       this.state = State.ACTIVE;                         //Default to ACTIVE
-      propMap.put(ZkStateReader.STATE_PROP, state.toString());
+    }
+    this.isLeader = Boolean.parseBoolean(String.valueOf(map.getOrDefault(ZkStateReader.LEADER_PROP, "false")));
+    this.propMap.putAll(map);
+    validate();
+  }
+
+  // clone constructor
+  public Replica(String name, String node, String collection, String shard, String core,
+                  boolean isLeader, State state, Type type, Map<String, Object> props) {
+    super(new HashMap<>());
+    this.name = name;
+    this.node = node;
+    this.state = state;
+    this.type = type;
+    this.isLeader = isLeader;
+    this.collection = collection;
+    this.shard = shard;
+    this.core = core;
+    if (props != null) {
+      this.propMap.putAll(props);
     }
   }
 
-  public String getCollection(){
+  /**
+   * This constructor uses a map with one key (coreNode name) and a value that
+   * is a map containing all replica properties.
+   * @param nestedMap nested map containing replica properties
+   */
+  public Replica(Map<String, Object> nestedMap) {
+    this.name = nestedMap.keySet().iterator().next();
+    Map<String, Object> details = (Map<String, Object>) nestedMap.get(name);
+    Objects.requireNonNull(details);
+    details = Utils.getDeepCopy(details, 4);
+    this.collection = (String) details.get("collection");
+    this.shard = (String) details.get("shard");
+    this.core = (String) details.get("core");
+    this.node = (String) details.get("node_name");
+    this.isLeader = Boolean.parseBoolean(String.valueOf(details.getOrDefault(ZkStateReader.LEADER_PROP, "false")));
+    type = Replica.Type.valueOf(String.valueOf(details.getOrDefault(ZkStateReader.REPLICA_TYPE, "NRT")));
+    state = State.getState(String.valueOf(details.getOrDefault(ZkStateReader.STATE_PROP, "active")));
+    this.propMap.putAll(details);
+    validate();
+
+  }
+
+  private final void validate() {
+    Objects.requireNonNull(this.name, "'name' must not be null");
+    Objects.requireNonNull(this.core, "'core' must not be null");
+    Objects.requireNonNull(this.collection, "'collection' must not be null");
+    Objects.requireNonNull(this.shard, "'shard' must not be null");
+    Objects.requireNonNull(this.type, "'type' must not be null");
+    Objects.requireNonNull(this.state, "'state' must not be null");
+    Objects.requireNonNull(this.node, "'node' must not be null");
+  }
+
+  public String getCollection() {
     return collection;
   }
-  public String getSlice(){
-    return slice;
+
+  public String getShard() {
+    return shard;
   }
 
   @Override
@@ -148,14 +210,26 @@ public class Replica extends ZkNodeProps {
     if (o == null || getClass() != o.getClass()) return false;
     if (!super.equals(o)) return false;
 
-    Replica replica = (Replica) o;
+    Replica other = (Replica) o;
 
-    return name.equals(replica.name);
+    if (
+        name.equals(other.name) &&
+            collection.equals(other.collection) &&
+            core.equals(other.core) &&
+            isLeader == other.isLeader &&
+            node.equals(other.node) &&
+            shard.equals(other.shard) &&
+            type == other.type &&
+            propMap.equals(other.propMap)) {
+      return true;
+    } else {
+      return false;
+    }
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(name);
+    return Objects.hash(name, core, collection, shard, type, state, propMap);
   }
 
   /** Also known as coreNodeName. */
@@ -166,7 +240,8 @@ public class Replica extends ZkNodeProps {
   public String getCoreUrl() {
     return ZkCoreNodeProps.getCoreUrl(getStr(ZkStateReader.BASE_URL_PROP), core);
   }
-  public String getBaseUrl(){
+
+  public String getBaseUrl() {
     return getStr(ZkStateReader.BASE_URL_PROP);
   }
 
@@ -176,8 +251,8 @@ public class Replica extends ZkNodeProps {
   }
 
   /** The name of the node this replica resides on */
-  public String getNodeName() {
-    return nodeName;
+  public String getNode() {
+    return node;
   }
   
   /** Returns the {@link State} of this replica. */
@@ -186,7 +261,7 @@ public class Replica extends ZkNodeProps {
   }
 
   public boolean isActive(Set<String> liveNodes) {
-    return this.nodeName != null && liveNodes.contains(this.nodeName) && this.state == State.ACTIVE;
+    return this.node != null && liveNodes.contains(this.node) && this.state == State.ACTIVE;
   }
   
   public Type getType() {
@@ -204,8 +279,42 @@ public class Replica extends ZkNodeProps {
     return propertyValue;
   }
 
+  public Object get(String propName) {
+    return propMap.get(propName);
+  }
+
+  public Object get(String propName, Object defValue) {
+    Object o = propMap.get(propName);
+    if (o != null) {
+      return o;
+    } else {
+      return defValue;
+    }
+  }
+
+  public Object clone() {
+    return new Replica(name, node, collection, shard, core, isLeader, state, type,
+        propMap);
+  }
+
+  @Override
+  public void writeMap(MapWriter.EntryWriter ew) throws IOException {
+    BiPredicate<CharSequence, Object> p = dedupeKeyPredicate(new HashSet<>())
+        .and(NON_NULL_VAL);
+    ew.put(name, (MapWriter) ew1 -> {
+      ew1.put(ZkStateReader.CORE_NAME_PROP, core, p)
+          .put(ZkStateReader.SHARD_ID_PROP, shard, p)
+          .put(ZkStateReader.COLLECTION_PROP, collection, p)
+          .put(ZkStateReader.NODE_NAME_PROP, node, p)
+          .put(ZkStateReader.REPLICA_TYPE, type.toString(), p)
+          .put(ZkStateReader.STATE_PROP, state.toString(), p)
+          .put(ZkStateReader.LEADER_PROP, isLeader, p);
+      for (Map.Entry<String, Object> e : propMap.entrySet()) ew1.put(e.getKey(), e.getValue(), p);
+    });
+  }
+
   @Override
   public String toString() {
-    return name + ':' + Utils.toJSONString(propMap); // small enough, keep it on one line (i.e. no indent)
+    return Utils.toJSONString(this); // small enough, keep it on one line (i.e. no indent)
   }
 }

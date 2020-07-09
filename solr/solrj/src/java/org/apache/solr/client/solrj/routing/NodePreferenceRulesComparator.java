@@ -139,7 +139,7 @@ public class NodePreferenceRulesComparator implements Comparator<Object> {
     }
 
     Collection<String> tags = Collections.singletonList(metricTag);
-    String otherNodeName = ((Replica) o).getNodeName();
+    String otherNodeName = ((Replica) o).getNode();
     Map<String, Object> currentNodeMetric = sysPropsCache.getSysProps(nodeName, tags);
     Map<String, Object> otherNodeMetric = sysPropsCache.getSysProps(otherNodeName, tags);
     return currentNodeMetric.equals(otherNodeMetric);

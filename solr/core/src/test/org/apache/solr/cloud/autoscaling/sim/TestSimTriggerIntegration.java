@@ -1472,8 +1472,8 @@ public class TestSimTriggerIntegration extends SimSolrCloudTestCase {
     assertTrue(replicaRates.toString(), replicaRates.size() > 0);
     AtomicDouble totalReplicaRate = new AtomicDouble();
     replicaRates.forEach(r -> {
-      assertTrue(r.toString(), r.getVariable("rate") != null);
-      totalReplicaRate.addAndGet((Double)r.getVariable("rate"));
+      assertTrue(r.toString(), r.get("rate") != null);
+      totalReplicaRate.addAndGet((Double)r.get("rate"));
     });
     Map<String, Object> shardRates = (Map<String, Object>)ev.event.getProperties().get(SearchRateTrigger.HOT_SHARDS);
     assertNotNull("shardRates", shardRates);

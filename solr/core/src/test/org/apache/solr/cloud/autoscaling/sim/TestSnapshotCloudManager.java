@@ -171,7 +171,7 @@ public class TestSnapshotCloudManager extends SolrCloudTestCase {
       // get another node
       String target = null;
       for (String node : simCloudManager.getClusterStateProvider().getLiveNodes()) {
-        if (!node.equals(r.getNodeName())) {
+        if (!node.equals(r.getNode())) {
           target = node;
           break;
         }

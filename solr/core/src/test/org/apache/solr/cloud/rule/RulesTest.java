@@ -131,7 +131,7 @@ public class RulesTest extends SolrCloudTestCase {
                          return false;
                        }
                        replicaNodes.addAll(liveReplicas.stream().map
-                                           (Replica::getNodeName).collect(Collectors.toList()));
+                                           (Replica::getNode).collect(Collectors.toList()));
                      } else if (slice.getName().equals("shard2")) {
                        // for shard2, we should have 3 fully live replicas
                        final List<Replica> liveReplicas = slice.getReplicas
@@ -140,7 +140,7 @@ public class RulesTest extends SolrCloudTestCase {
                          return false;
                        }
                        replicaNodes.addAll(liveReplicas.stream().map
-                                           (Replica::getNodeName).collect(Collectors.toList()));
+                                           (Replica::getNode).collect(Collectors.toList()));
                      } else {
                        // WTF?
                        return false;
@@ -210,7 +210,7 @@ public class RulesTest extends SolrCloudTestCase {
                    // now sanity check that the rules were *obeyed*
                    // (and the contradictory policy was ignored)
                    return rulesCollection.getReplicas().stream().allMatch
-                     (replica -> (replica.getNodeName().contains(port) &&
+                     (replica -> (replica.getNode().contains(port) &&
                                   replica.isActive(liveNodes)));
                  });
   }
@@ -254,7 +254,7 @@ public class RulesTest extends SolrCloudTestCase {
                    }
                    // now sanity check that the rules were *obeyed*
                    return rulesCollection.getReplicas().stream().allMatch
-                     (replica -> (replica.getNodeName().contains(port) &&
+                     (replica -> (replica.getNode().contains(port) &&
                                   replica.isActive(liveNodes)));
                  });
   }

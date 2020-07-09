@@ -270,7 +270,7 @@ public class FeaturesSelectionStream extends TupleStream implements Expressible{
         Collection<Replica> replicas = slice.getReplicas();
         List<Replica> shuffler = new ArrayList<>();
         for(Replica replica : replicas) {
-          if(replica.getState() == Replica.State.ACTIVE && liveNodes.contains(replica.getNodeName())) {
+          if(replica.getState() == Replica.State.ACTIVE && liveNodes.contains(replica.getNode())) {
             shuffler.add(replica);
           }
         }

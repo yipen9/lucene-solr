@@ -159,7 +159,7 @@ public class TestPolicyCloud extends SolrCloudTestCase {
       SolrClientNodeStateProvider nodeStateProvider = (SolrClientNodeStateProvider) cloudManager.getNodeStateProvider();
       Map<String, Map<String, List<ReplicaInfo>>> result = nodeStateProvider.getReplicaInfo(nodeName, Collections.singleton("UPDATE./update.requests"));
       nodeStateProvider.forEachReplica(nodeName, replicaInfo -> {
-        if (replicaInfo.getVariables().containsKey("UPDATE./update.requests")) count.incrementAndGet();
+        if (replicaInfo.getProperties().containsKey("UPDATE./update.requests")) count.incrementAndGet();
       });
       assertTrue(count.get() > 0);
 
@@ -178,7 +178,7 @@ public class TestPolicyCloud extends SolrCloudTestCase {
       for (Row row : session.getSortedNodes()) {
         row.collectionVsShardVsReplicas.forEach((c, shardVsReplicas) -> shardVsReplicas.forEach((s, replicaInfos) -> {
           for (ReplicaInfo replicaInfo : replicaInfos) {
-            if (replicaInfo.getVariables().containsKey(Type.CORE_IDX.tagName)) count.incrementAndGet();
+            if (replicaInfo.getProperties().containsKey(Type.CORE_IDX.tagName)) count.incrementAndGet();
           }
         }));
       }
@@ -199,7 +199,7 @@ public class TestPolicyCloud extends SolrCloudTestCase {
       for (Slice slice : collection) {
         for (Replica replica : slice) {
           if ( ! (replica.isActive(liveNodes)
-                  && expectedNodeName.equals(replica.getNodeName())) ) {
+                  && expectedNodeName.equals(replica.getNode())) ) {
             return false;
           }
           actualReplicaCount++;
@@ -296,8 +296,8 @@ public class TestPolicyCloud extends SolrCloudTestCase {
                      // now the main check we care about: were the replicas split up on
                      // the expected nodes...
                      if (! expectedNodeNames.equals(ImmutableSet.of
-                                                  (liveReplicas.get(0).getNodeName(),
-                                                   liveReplicas.get(1).getNodeName()))) {
+                                                  (liveReplicas.get(0).getNode(),
+                                                   liveReplicas.get(1).getNode()))) {
                        return false;
                      }
                    }
@@ -334,8 +334,8 @@ public class TestPolicyCloud extends SolrCloudTestCase {
                      // now the main check we care about: were the replicas split up on
                      // the expected nodes...
                      if (! expectedNodeNames.equals(ImmutableSet.of
-                                                    (liveReplicas.get(0).getNodeName(),
-                                                     liveReplicas.get(1).getNodeName()))) {
+                                                    (liveReplicas.get(0).getNode(),
+                                                     liveReplicas.get(1).getNode()))) {
                        return false;
                      }
                    }
@@ -381,11 +381,11 @@ public class TestPolicyCloud extends SolrCloudTestCase {
     try (SolrCloudManager provider = new SolrClientCloudManager(queueFactory, solrClient)) {
       List<String> tags = Arrays.asList("metrics:solr.node:ADMIN./admin/authorization.clientErrors:count",
           "metrics:solr.jvm:buffers.direct.Count");
-      Map<String, Object> val = provider.getNodeStateProvider().getNodeValues(collection.getReplicas().get(0).getNodeName(), tags);
+      Map<String, Object> val = provider.getNodeStateProvider().getNodeValues(collection.getReplicas().get(0).getNode(), tags);
       for (String tag : tags) {
         assertNotNull("missing : " + tag, val.get(tag));
       }
-      val = provider.getNodeStateProvider().getNodeValues(collection.getReplicas().get(0).getNodeName(), Collections.singleton("diskType"));
+      val = provider.getNodeStateProvider().getNodeValues(collection.getReplicas().get(0).getNode(), Collections.singleton("diskType"));
 
       Set<String> diskTypes = ImmutableSet.of("rotational", "ssd");
       assertTrue(diskTypes.contains(val.get("diskType")));
@@ -434,15 +434,15 @@ public class TestPolicyCloud extends SolrCloudTestCase {
     BiConsumer<String, Replica> verifyReplicas = (s, replica) -> {
       switch (replica.getType()) {
         case NRT: {
-          assertTrue("NRT replica should be in " + nrtNodeName, replica.getNodeName().equals(nrtNodeName));
+          assertTrue("NRT replica should be in " + nrtNodeName, replica.getNode().equals(nrtNodeName));
           break;
         }
         case TLOG: {
-          assertTrue("TLOG replica should be in " + tlogNodeName, replica.getNodeName().equals(tlogNodeName));
+          assertTrue("TLOG replica should be in " + tlogNodeName, replica.getNode().equals(tlogNodeName));
           break;
         }
         case PULL: {
-          assertTrue("PULL replica should be in " + pullNodeName, replica.getNodeName().equals(pullNodeName));
+          assertTrue("PULL replica should be in " + pullNodeName, replica.getNode().equals(pullNodeName));
           break;
         }
       }
@@ -479,7 +479,7 @@ public class TestPolicyCloud extends SolrCloudTestCase {
     DocCollection coll = getCollectionState(collectionName);
     assertEquals("c1", coll.getPolicyName());
     assertEquals(2,coll.getReplicas().size());
-    coll.forEachReplica((s, replica) -> assertEquals(jetty.getNodeName(), replica.getNodeName()));
+    coll.forEachReplica((s, replica) -> assertEquals(jetty.getNodeName(), replica.getNode()));
     
     CollectionAdminRequest.createShard(collectionName, "s3").process(cluster.getSolrClient());
 
@@ -487,7 +487,7 @@ public class TestPolicyCloud extends SolrCloudTestCase {
 
     coll = getCollectionState(collectionName);
     assertEquals(1, coll.getSlice("s3").getReplicas().size());
-    coll.getSlice("s3").forEach(replica -> assertEquals(jetty.getNodeName(), replica.getNodeName()));
+    coll.getSlice("s3").forEach(replica -> assertEquals(jetty.getNodeName(), replica.getNode()));
   }
 
   public void testDataProvider() throws Exception {
@@ -500,7 +500,7 @@ public class TestPolicyCloud extends SolrCloudTestCase {
     DocCollection rulesCollection = getCollectionState(collectionName);
 
     try (SolrCloudManager cloudManager = new SolrClientCloudManager(new ZkDistributedQueueFactory(cluster.getZkClient()), cluster.getSolrClient())) {
-      Map<String, Object> val = cloudManager.getNodeStateProvider().getNodeValues(rulesCollection.getReplicas().get(0).getNodeName(), Arrays.asList(
+      Map<String, Object> val = cloudManager.getNodeStateProvider().getNodeValues(rulesCollection.getReplicas().get(0).getNode(), Arrays.asList(
           "freedisk",
           "cores",
           "host",

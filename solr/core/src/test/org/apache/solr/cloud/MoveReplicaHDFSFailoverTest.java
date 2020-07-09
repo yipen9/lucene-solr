@@ -102,13 +102,13 @@ public class MoveReplicaHDFSFailoverTest extends SolrCloudTestCase {
     docCollection = zkStateReader.getClusterState().getCollection(coll);
     assertEquals(1, docCollection.getSlice("shard1").getReplicas().size());
     Replica newReplica = docCollection.getReplicas().iterator().next();
-    assertEquals(newReplica.getNodeName(), cluster.getJettySolrRunner(1).getNodeName());
+    assertEquals(newReplica.getNode(), cluster.getJettySolrRunner(1).getNodeName());
     assertTrue(newReplica.getStr("ulogDir"), newReplica.getStr("ulogDir").equals(ulogDir) || newReplica.getStr("ulogDir").equals(ulogDir+'/'));
     assertTrue(newReplica.getStr("dataDir"),newReplica.getStr("dataDir").equals(dataDir) || newReplica.getStr("dataDir").equals(dataDir+'/'));
 
     assertEquals(replica.getName(), newReplica.getName());
     assertEquals(replica.getCoreName(), newReplica.getCoreName());
-    assertFalse(replica.getNodeName().equals(newReplica.getNodeName()));
+    assertFalse(replica.getNode().equals(newReplica.getNode()));
     final int numDocs = 100;
     addDocs(coll, numDocs);  // indexed but not committed
 
@@ -124,7 +124,7 @@ public class MoveReplicaHDFSFailoverTest extends SolrCloudTestCase {
     docCollection = zkStateReader.getClusterState().getCollection(coll);
     assertEquals(1, docCollection.getReplicas().size());
     newReplica = docCollection.getReplicas().iterator().next();
-    assertEquals(newReplica.getNodeName(), cluster.getJettySolrRunner(0).getNodeName());
+    assertEquals(newReplica.getNode(), cluster.getJettySolrRunner(0).getNodeName());
     assertTrue(newReplica.getStr("ulogDir"), newReplica.getStr("ulogDir").equals(ulogDir) || newReplica.getStr("ulogDir").equals(ulogDir+'/'));
     assertTrue(newReplica.getStr("dataDir"),newReplica.getStr("dataDir").equals(dataDir) || newReplica.getStr("dataDir").equals(dataDir+'/'));
 

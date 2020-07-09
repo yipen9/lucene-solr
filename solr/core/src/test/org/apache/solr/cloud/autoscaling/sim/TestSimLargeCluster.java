@@ -708,7 +708,7 @@ public class TestSimLargeCluster extends SimSolrCloudTestCase {
     cluster.getSimClusterStateProvider().getClusterState().getCollection(collectionName)
         .getSlice("shard1")
         .getReplicas()
-        .forEach(r -> nodes.add(r.getNodeName()));
+        .forEach(r -> nodes.add(r.getNode()));
 
     String metricName = "QUERY./select.requestTimes:1minRate";
     // simulate search traffic
@@ -803,7 +803,7 @@ public class TestSimLargeCluster extends SimSolrCloudTestCase {
     ClusterState clusterState = cluster.getClusterStateProvider().getClusterState();
     DocCollection coll = clusterState.getCollection(collectionName);
     Set<String> nodes = coll.getReplicas().stream()
-        .map(r -> r.getNodeName())
+        .map(r -> r.getNode())
         .collect(Collectors.toSet());
     Map<String, Number> initialFreedisk = getFreeDiskPerNode(nodes);
 

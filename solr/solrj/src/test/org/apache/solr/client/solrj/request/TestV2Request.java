@@ -158,7 +158,7 @@ public class TestV2Request extends SolrCloudTestCase {
     System.out.println("livenodes: " + cs.getLiveNodes());
 
     String[] node = new String[1];
-    cs.getCollection("v2forward").forEachReplica((s, replica) -> node[0] = replica.getNodeName());
+    cs.getCollection("v2forward").forEachReplica((s, replica) -> node[0] = replica.getNode());
 
     //find a node that does not have a replica for this collection
     final String[] testNode = new String[1];

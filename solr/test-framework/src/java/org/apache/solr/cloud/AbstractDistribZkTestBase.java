@@ -175,7 +175,7 @@ public abstract class AbstractDistribZkTestBase extends BaseDistributedSearchTes
             if (verbose) System.out.println("replica:" + shard.getValue().getName() + " rstate:"
                 + shard.getValue().getStr(ZkStateReader.STATE_PROP)
                 + " live:"
-                + liveNodes.contains(shard.getValue().getNodeName()));
+                + liveNodes.contains(shard.getValue().getNode()));
             final Replica.State state = shard.getValue().getState();
             if ((state == Replica.State.RECOVERING || state == Replica.State.DOWN
                 || state == Replica.State.RECOVERY_FAILED)

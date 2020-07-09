@@ -1336,7 +1336,7 @@ public class CollectionsHandler extends RequestHandlerBase implements Permission
 
       final Set<String> liveNodes = clusterState.getLiveNodes();
       List<Replica> liveReplicas = slice.getReplicas().stream()
-          .filter(rep -> liveNodes.contains(rep.getNodeName())).collect(Collectors.toList());
+          .filter(rep -> liveNodes.contains(rep.getNode())).collect(Collectors.toList());
       boolean shouldIncreaseReplicaTerms = liveReplicas.stream()
           .noneMatch(rep -> zkShardTerms.registered(rep.getName()) && zkShardTerms.canBecomeLeader(rep.getName()));
       // we won't increase replica's terms if exist a live replica with term equals to leader
@@ -1424,7 +1424,7 @@ public class CollectionsHandler extends RequestHandlerBase implements Permission
                 log.debug("Checking replica status, collection={} replica={} state={}", collectionName,
                     replica.getCoreUrl(), state);
               }
-              if (!n.contains(replica.getNodeName())
+              if (!n.contains(replica.getNode())
                   || !state.equals(Replica.State.ACTIVE.toString())) {
                 replicaNotAliveCnt++;
                 return false;

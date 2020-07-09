@@ -1116,7 +1116,7 @@ public abstract class BaseCloudSolrClient extends SolrClient {
       for (Slice slice : slices.values()) {
         Replica leader = slice.getLeader();
         for (Replica replica : slice.getReplicas()) {
-          String node = replica.getNodeName();
+          String node = replica.getNode();
           if (!liveNodes.contains(node) // Must be a live node to continue
               || replica.getState() != Replica.State.ACTIVE) // Must be an ACTIVE replica to continue
             continue;
@@ -1139,7 +1139,7 @@ public abstract class BaseCloudSolrClient extends SolrClient {
       String joinedInputCollections = StrUtils.join(inputCollections, ',');
       Set<String> seenNodes = new HashSet<>();
       sortedReplicas.forEach( replica -> {
-        if (seenNodes.add(replica.getNodeName())) {
+        if (seenNodes.add(replica.getNode())) {
           theUrlList.add(ZkCoreNodeProps.getCoreUrl(replica.getBaseUrl(), joinedInputCollections));
         }
       });

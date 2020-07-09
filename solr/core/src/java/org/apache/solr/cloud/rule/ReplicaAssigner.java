@@ -90,8 +90,8 @@ public class ReplicaAssigner {
         DocCollection coll = entry.getValue();
         for (Slice slice : coll.getSlices()) {
           for (Replica replica : slice.getReplicas()) {
-            AtomicInteger count = nodeVsCores.get(replica.getNodeName());
-            if (count == null) nodeVsCores.put(replica.getNodeName(), count = new AtomicInteger());
+            AtomicInteger count = nodeVsCores.get(replica.getNode());
+            if (count == null) nodeVsCores.put(replica.getNode(), count = new AtomicInteger());
             count.incrementAndGet();
           }
         }

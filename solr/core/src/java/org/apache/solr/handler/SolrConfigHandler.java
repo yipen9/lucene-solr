@@ -871,7 +871,7 @@ public class SolrConfigHandler extends RequestHandlerBase implements SolrCoreAwa
         if (replicasMap != null) {
           for (Map.Entry<String, Replica> entry : replicasMap.entrySet()) {
             Replica replica = entry.getValue();
-            if (replica.getState() == Replica.State.ACTIVE && liveNodes.contains(replica.getNodeName())) {
+            if (replica.getState() == Replica.State.ACTIVE && liveNodes.contains(replica.getNode())) {
               activeReplicaCoreUrls.add(replica.getCoreUrl());
             }
           }

@@ -219,7 +219,7 @@ public class SimSolrCloudTestCase extends SolrTestCaseJ4 {
 
   public static void assertReplicaEquals(Replica one, Replica two) {
     assertEquals(one.getName(), two.getName());
-    assertEquals(one.getNodeName(), two.getNodeName());
+    assertEquals(one.getNode(), two.getNode());
     assertEquals(one.getState(), two.getState());
     assertEquals(one.getType(), two.getType());
     assertReplicaPropsEquals(one.getProperties(), two.getProperties());

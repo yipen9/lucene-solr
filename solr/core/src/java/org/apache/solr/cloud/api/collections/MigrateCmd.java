@@ -180,7 +180,7 @@ public class MigrateCmd implements OverseerCollectionMessageHandler.Cmd {
 
     if (log.isInfoEnabled()) {
       log.info("Asking target leader node: {} core: {} to buffer updates"
-          , targetLeader.getNodeName(), targetLeader.getStr("core"));
+          , targetLeader.getNode(), targetLeader.getStr("core"));
     }
     ModifiableSolrParams params = new ModifiableSolrParams();
     params.set(CoreAdminParams.ACTION, CoreAdminParams.CoreAdminAction.REQUESTBUFFERUPDATES.toString());
@@ -188,7 +188,7 @@ public class MigrateCmd implements OverseerCollectionMessageHandler.Cmd {
 
     {
       final ShardRequestTracker shardRequestTracker = ocmh.asyncRequestTracker(asyncId);
-      shardRequestTracker.sendShardRequest(targetLeader.getNodeName(), params, shardHandler);
+      shardRequestTracker.sendShardRequest(targetLeader.getNode(), params, shardHandler);
 
       shardRequestTracker.processResponses(results, shardHandler, true, "MIGRATE failed to request node to buffer updates");
     }
@@ -237,7 +237,7 @@ public class MigrateCmd implements OverseerCollectionMessageHandler.Cmd {
         NRT_REPLICAS, 1,
         OverseerCollectionMessageHandler.NUM_SLICES, 1,
         CollectionAdminParams.COLL_CONF, configName,
-        OverseerCollectionMessageHandler.CREATE_NODE_SET, sourceLeader.getNodeName());
+        OverseerCollectionMessageHandler.CREATE_NODE_SET, sourceLeader.getNode());
     if (asyncId != null) {
       String internalAsyncId = asyncId + Math.abs(System.nanoTime());
       props.put(ASYNC, internalAsyncId);
@@ -252,14 +252,14 @@ public class MigrateCmd implements OverseerCollectionMessageHandler.Cmd {
 
     String tempCollectionReplica1 = tempSourceLeader.getCoreName();
     String coreNodeName = ocmh.waitForCoreNodeName(tempSourceCollectionName,
-        sourceLeader.getNodeName(), tempCollectionReplica1);
+        sourceLeader.getNode(), tempCollectionReplica1);
     // wait for the replicas to be seen as active on temp source leader
     if (log.isInfoEnabled()) {
-      log.info("Asking source leader to wait for: {} to be alive on: {}", tempCollectionReplica1, sourceLeader.getNodeName());
+      log.info("Asking source leader to wait for: {} to be alive on: {}", tempCollectionReplica1, sourceLeader.getNode());
     }
     CoreAdminRequest.WaitForState cmd = new CoreAdminRequest.WaitForState();
     cmd.setCoreName(tempCollectionReplica1);
-    cmd.setNodeName(sourceLeader.getNodeName());
+    cmd.setNodeName(sourceLeader.getNode());
     cmd.setCoreNodeName(coreNodeName);
     cmd.setState(Replica.State.ACTIVE);
     cmd.setCheckLive(true);
@@ -267,7 +267,7 @@ public class MigrateCmd implements OverseerCollectionMessageHandler.Cmd {
     {
       final ShardRequestTracker syncRequestTracker = ocmh.syncRequestTracker();
       // we don't want this to happen asynchronously
-      syncRequestTracker.sendShardRequest(tempSourceLeader.getNodeName(), new ModifiableSolrParams(cmd.getParams()),
+      syncRequestTracker.sendShardRequest(tempSourceLeader.getNode(), new ModifiableSolrParams(cmd.getParams()),
           shardHandler);
 
       syncRequestTracker.processResponses(results, shardHandler, true,
@@ -283,7 +283,7 @@ public class MigrateCmd implements OverseerCollectionMessageHandler.Cmd {
     params.set(CoreAdminParams.RANGES, splitRange.toString());
     params.set("split.key", splitKey);
 
-    String tempNodeName = sourceLeader.getNodeName();
+    String tempNodeName = sourceLeader.getNode();
 
     {
       final ShardRequestTracker shardRequestTracker = ocmh.asyncRequestTracker(asyncId);
@@ -292,7 +292,7 @@ public class MigrateCmd implements OverseerCollectionMessageHandler.Cmd {
     }
     if (log.isInfoEnabled()) {
       log.info("Creating a replica of temporary collection: {} on the target leader node: {}",
-          tempSourceCollectionName, targetLeader.getNodeName());
+          tempSourceCollectionName, targetLeader.getNode());
     }
     String tempCollectionReplica2 = Assign.buildSolrCoreName(ocmh.overseer.getSolrCloudManager().getDistribStateManager(),
         zkStateReader.getClusterState().getCollection(tempSourceCollectionName), tempSourceSlice.getName(), Replica.Type.NRT);
@@ -300,7 +300,7 @@ public class MigrateCmd implements OverseerCollectionMessageHandler.Cmd {
     props.put(Overseer.QUEUE_OPERATION, ADDREPLICA.toLower());
     props.put(COLLECTION_PROP, tempSourceCollectionName);
     props.put(SHARD_ID_PROP, tempSourceSlice.getName());
-    props.put("node", targetLeader.getNodeName());
+    props.put("node", targetLeader.getNode());
     props.put(CoreAdminParams.NAME, tempCollectionReplica2);
     // copy over property params:
     for (String key : message.keySet()) {
@@ -320,14 +320,14 @@ public class MigrateCmd implements OverseerCollectionMessageHandler.Cmd {
         "temporary collection in target leader node.");
     }
     coreNodeName = ocmh.waitForCoreNodeName(tempSourceCollectionName,
-        targetLeader.getNodeName(), tempCollectionReplica2);
+        targetLeader.getNode(), tempCollectionReplica2);
     // wait for the replicas to be seen as active on temp source leader
     if (log.isInfoEnabled()) {
-      log.info("Asking temp source leader to wait for: {} to be alive on: {}", tempCollectionReplica2, targetLeader.getNodeName());
+      log.info("Asking temp source leader to wait for: {} to be alive on: {}", tempCollectionReplica2, targetLeader.getNode());
     }
     cmd = new CoreAdminRequest.WaitForState();
     cmd.setCoreName(tempSourceLeader.getStr("core"));
-    cmd.setNodeName(targetLeader.getNodeName());
+    cmd.setNodeName(targetLeader.getNode());
     cmd.setCoreNodeName(coreNodeName);
     cmd.setState(Replica.State.ACTIVE);
     cmd.setCheckLive(true);
@@ -336,7 +336,7 @@ public class MigrateCmd implements OverseerCollectionMessageHandler.Cmd {
 
     {
       final ShardRequestTracker shardRequestTracker = ocmh.asyncRequestTracker(asyncId);
-      shardRequestTracker.sendShardRequest(tempSourceLeader.getNodeName(), params, shardHandler);
+      shardRequestTracker.sendShardRequest(tempSourceLeader.getNode(), params, shardHandler);
 
       shardRequestTracker.processResponses(results, shardHandler, true, "MIGRATE failed to create temp collection" +
         " replica or timed out waiting for them to come up");
@@ -352,9 +352,9 @@ public class MigrateCmd implements OverseerCollectionMessageHandler.Cmd {
     {
       final ShardRequestTracker shardRequestTracker = ocmh.asyncRequestTracker(asyncId);
     
-      shardRequestTracker.sendShardRequest(targetLeader.getNodeName(), params, shardHandler);
+      shardRequestTracker.sendShardRequest(targetLeader.getNode(), params, shardHandler);
     String msg = "MIGRATE failed to merge " + tempCollectionReplica2 + " to "
-        + targetLeader.getStr("core") + " on node: " + targetLeader.getNodeName();
+        + targetLeader.getStr("core") + " on node: " + targetLeader.getNode();
     shardRequestTracker.processResponses(results, shardHandler, true, msg);
     }
     log.info("Asking target leader to apply buffered updates");
@@ -364,7 +364,7 @@ public class MigrateCmd implements OverseerCollectionMessageHandler.Cmd {
 
     {
       final ShardRequestTracker shardRequestTracker = ocmh.asyncRequestTracker(asyncId);
-      shardRequestTracker.sendShardRequest(targetLeader.getNodeName(), params, shardHandler);
+      shardRequestTracker.sendShardRequest(targetLeader.getNode(), params, shardHandler);
       shardRequestTracker.processResponses(results, shardHandler, true, "MIGRATE failed to request node to apply buffered updates");
     }
     try {

@@ -398,7 +398,7 @@ public class IndexFetcher {
           }
           return IndexFetchResult.LEADER_IS_NOT_ACTIVE;
         }
-        if (!solrCore.getCoreContainer().getZkController().getClusterState().liveNodesContain(replica.getNodeName())) {
+        if (!solrCore.getCoreContainer().getZkController().getClusterState().liveNodesContain(replica.getNode())) {
           if (log.isInfoEnabled()) {
             log.info("Replica {} is leader but it's not hosted on a live node, skipping replication", replica.getName());
           }

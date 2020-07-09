@@ -312,7 +312,7 @@ public class CollectionsAPIDistributedZkTest extends SolrCloudTestCase {
     DocCollection collection = getCollectionState("nodes_used_collection");
     for (Slice slice : collection.getSlices()) {
       for (Replica replica : slice.getReplicas()) {
-        createNodeList.remove(replica.getNodeName());
+        createNodeList.remove(replica.getNode());
       }
     }
 

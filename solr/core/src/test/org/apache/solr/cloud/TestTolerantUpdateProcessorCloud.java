@@ -136,9 +136,9 @@ public class TestTolerantUpdateProcessorCloud extends SolrCloudTestCase {
       String shardName = slice.getName();
       Replica leader = slice.getLeader();
       assertNotNull("slice has null leader: " + slice.toString(), leader);
-      assertNotNull("slice leader has null node name: " + slice.toString(), leader.getNodeName());
-      String leaderUrl = urlMap.remove(leader.getNodeName());
-      assertNotNull("could not find URL for " + shardName + " leader: " + leader.getNodeName(),
+      assertNotNull("slice leader has null node name: " + slice.toString(), leader.getNode());
+      String leaderUrl = urlMap.remove(leader.getNode());
+      assertNotNull("could not find URL for " + shardName + " leader: " + leader.getNode(),
                     leaderUrl);
       assertEquals("expected two total replicas for: " + slice.getName(),
                    2, slice.getReplicas().size());
@@ -147,8 +147,8 @@ public class TestTolerantUpdateProcessorCloud extends SolrCloudTestCase {
       
       for (Replica replica : slice.getReplicas()) {
         if ( ! replica.equals(leader)) {
-          passiveUrl = urlMap.remove(replica.getNodeName());
-          assertNotNull("could not find URL for " + shardName + " replica: " + replica.getNodeName(),
+          passiveUrl = urlMap.remove(replica.getNode());
+          assertNotNull("could not find URL for " + shardName + " replica: " + replica.getNode(),
                         passiveUrl);
         }
       }

@@ -117,18 +117,18 @@ public class DocCollection extends ZkNodeProps implements Iterable<Slice> {
   }
 
   private void addNodeNameReplica(Replica replica) {
-    List<Replica> replicas = nodeNameReplicas.get(replica.getNode());
+    List<Replica> replicas = nodeNameReplicas.get(replica.getNodeName());
     if (replicas == null) {
       replicas = new ArrayList<>();
-      nodeNameReplicas.put(replica.getNode(), replicas);
+      nodeNameReplicas.put(replica.getNodeName(), replicas);
     }
     replicas.add(replica);
 
     if (replica.getStr(Slice.LEADER) != null) {
-      List<Replica> leaderReplicas = nodeNameLeaderReplicas.get(replica.getNode());
+      List<Replica> leaderReplicas = nodeNameLeaderReplicas.get(replica.getNodeName());
       if (leaderReplicas == null) {
         leaderReplicas = new ArrayList<>();
-        nodeNameLeaderReplicas.put(replica.getNode(), leaderReplicas);
+        nodeNameLeaderReplicas.put(replica.getNodeName(), leaderReplicas);
       }
       leaderReplicas.add(replica);
     }
@@ -353,7 +353,7 @@ public class DocCollection extends ZkNodeProps implements Iterable<Slice> {
   public String getShardId(String nodeName, String coreName) {
     for (Slice slice : this) {
       for (Replica replica : slice) {
-        if (Objects.equals(replica.getNode(), nodeName) && Objects.equals(replica.getCoreName(), coreName))
+        if (Objects.equals(replica.getNodeName(), nodeName) && Objects.equals(replica.getCoreName(), coreName))
           return slice.getName();
       }
     }

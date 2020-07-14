@@ -199,7 +199,7 @@ public class TestInPlaceUpdatesDistrib extends AbstractFullDistribZkTestBase {
     Slice shard1 = clusterState.getCollection(DEFAULT_COLLECTION).getSlice(SHARD1);
     leader = shard1.getLeader();
 
-    String leaderBaseUrl = zkStateReader.getBaseUrlForNodeName(leader.getNode());
+    String leaderBaseUrl = zkStateReader.getBaseUrlForNodeName(leader.getNodeName());
     for (int i=0; i<clients.size(); i++) {
       if (((HttpSolrClient)clients.get(i)).getBaseURL().startsWith(leaderBaseUrl))
         LEADER = clients.get(i);
@@ -210,7 +210,7 @@ public class TestInPlaceUpdatesDistrib extends AbstractFullDistribZkTestBase {
       if (rep.equals(leader)) {
         continue;
       }
-      String baseUrl = zkStateReader.getBaseUrlForNodeName(rep.getNode());
+      String baseUrl = zkStateReader.getBaseUrlForNodeName(rep.getNodeName());
       for (int i=0; i<clients.size(); i++) {
         if (((HttpSolrClient)clients.get(i)).getBaseURL().startsWith(baseUrl))
           NONLEADERS.add(clients.get(i));

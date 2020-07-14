@@ -40,7 +40,7 @@ public interface NodeStateProvider extends SolrCloseable {
    * Get the details of each replica in a node. It attempts to fetch as much details about
    * the replica as mentioned in the keys list. It is not necessary to give all details
    * <p>The format is {collection:shard :[{replicadetails}]}.</p>
-   * @return
+   * @return map of replica infos per collection/shard
    */
   Map<String, Map<String, List<Replica>>> getReplicaInfo(String node, Collection<String> keys);
 }

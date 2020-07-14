@@ -69,12 +69,12 @@ public class SnapshotNodeStateProvider implements NodeStateProvider {
                 .computeIfAbsent(shard, s -> new ArrayList<>());
             Map<String, Object> rMap = new LinkedHashMap<>();
             r.toMap(rMap);
-            if (r.isLeader) { // ReplicaInfo.toMap doesn't write this!!!
+            if (r.isLeader()) { // ReplicaInfo.toMap doesn't write this!!!
               ((Map<String, Object>)rMap.values().iterator().next()).put("leader", "true");
             }
             Replica ri = new Replica(rMap);
             // put in "leader" again if present
-            if (r.isLeader) {
+            if (r.isLeader()) {
               ri.getProperties().put("leader", "true");
             }
             // externally produced snapshots may not include the right units
@@ -109,7 +109,7 @@ public class SnapshotNodeStateProvider implements NodeStateProvider {
           List<Replica> infos = perColl.computeIfAbsent(shard, s -> new ArrayList<>());
           ((List<Map<String, Object>>)replicas).forEach(replicaMap -> {
             Replica ri = new Replica(new LinkedHashMap<>(replicaMap)); // constructor modifies this map
-            if (ri.isLeader) {
+            if (ri.isLeader()) {
               ri.getProperties().put("leader", "true");
             }
             // externally produced snapshots may not include the right units
@@ -148,7 +148,7 @@ public class SnapshotNodeStateProvider implements NodeStateProvider {
                 .computeIfAbsent(shard, s -> new ArrayList<>());
             Map<String, Object> rMap = new LinkedHashMap<>();
             r.toMap(rMap);
-            if (r.isLeader) { // ReplicaInfo.toMap doesn't write this!!!
+            if (r.isLeader()) { // ReplicaInfo.toMap doesn't write this!!!
               ((Map<String, Object>)rMap.values().iterator().next()).put("leader", "true");
             }
             myReplicas.add(rMap);

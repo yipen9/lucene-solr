@@ -361,9 +361,9 @@ public class SharedFSAutoReplicaFailoverTest extends AbstractFullDistribZkTestBa
             if (slice.getState() == Slice.State.ACTIVE) {
               Collection<Replica> replicas = slice.getReplicas();
               for (Replica replica : replicas) {
-                if (nodeNames.contains(replica.getNode())) {
+                if (nodeNames.contains(replica.getNodeName())) {
                   boolean live = clusterState.liveNodesContain(replica
-                      .getNode());
+                      .getNodeName());
                   if (live) {
                     success = false;
                   }
@@ -396,7 +396,7 @@ public class SharedFSAutoReplicaFailoverTest extends AbstractFullDistribZkTestBa
         for (Slice slice : slices) {
           int count = 0;
           for (Replica replica : slice.getReplicas()) {
-            if (replica.getState() == Replica.State.ACTIVE && clusterState.liveNodesContain(replica.getNode())) {
+            if (replica.getState() == Replica.State.ACTIVE && clusterState.liveNodesContain(replica.getNodeName())) {
               count++;
             }
           }

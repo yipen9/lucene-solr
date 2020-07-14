@@ -165,7 +165,7 @@ public class DeleteShardCmd implements OverseerCollectionMessageHandler.Cmd {
           SHARD_ID_PROP, slice.getName(),
           ZkStateReader.CORE_NAME_PROP, replica.getCoreName(),
           ZkStateReader.REPLICA_PROP, replica.getName(),
-          CoreAdminParams.NODE, replica.getNode());
+          CoreAdminParams.NODE, replica.getNodeName());
       sourceReplicas.add(props);
     }
     return sourceReplicas;

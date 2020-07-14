@@ -226,7 +226,7 @@ public class BackupCmd implements OverseerCollectionMessageHandler.Cmd {
         params.set(CoreAdminParams.COMMIT_NAME, snapshotMeta.get().getName());
       }
 
-      shardRequestTracker.sendShardRequest(replica.getNode(), params, shardHandler);
+      shardRequestTracker.sendShardRequest(replica.getNodeName(), params, shardHandler);
       log.debug("Sent backup request to core={} for backupName={}", coreName, backupName);
     }
     log.debug("Sent backup requests to all shard leaders for backupName={}", backupName);

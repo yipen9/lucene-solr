@@ -659,7 +659,7 @@ public class ChaosMonkey {
         m.find();
         String jettyPort = m.group(1);
         builder.append(String.format(Locale.ROOT, "%s(%s): {state: %s, type: %s, leader: %s, Live: %s}, ", 
-            replica.getName(), jettyPort, replica.getState(), replica.getType(), (replica.get("leader")!= null), zkStateReader.getClusterState().liveNodesContain(replica.getNode())));
+            replica.getName(), jettyPort, replica.getState(), replica.getType(), (replica.get("leader")!= null), zkStateReader.getClusterState().liveNodesContain(replica.getNodeName())));
       }
       if (slice.getReplicas().size() > 0) {
         builder.setLength(builder.length() - 2);

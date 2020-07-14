@@ -191,7 +191,7 @@ public class CollectionsAPIAsyncDistributedZkTest extends SolrCloudTestCase {
     Slice shard1 = client.getZkStateReader().getClusterState().getCollection(collection).getSlice("shard1");
     Replica replica = shard1.getReplicas().iterator().next();
     for (String liveNode : client.getZkStateReader().getClusterState().getLiveNodes()) {
-      if (!replica.getNode().equals(liveNode)) {
+      if (!replica.getNodeName().equals(liveNode)) {
         state = new CollectionAdminRequest.MoveReplica(collection, replica.getName(), liveNode)
             .processAndWait(client, MAX_TIMEOUT_SECONDS);
         assertSame("MoveReplica did not complete", RequestStatusState.COMPLETED, state);

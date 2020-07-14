@@ -282,7 +282,7 @@ public class SystemLogListenerTest extends SolrCloudTestCase {
 
     // now find a node that is *NOT* the overseer or the leader of a .system collection shard
     for (Replica r :  getCollectionState(CollectionAdminParams.SYSTEM_COLL).getReplicas()) {
-      if ( ! (r.getBool("leader", false) || r.getNode().equals(overseerNodeName) ) ) {
+      if ( ! (r.getBool("leader", false) || r.getNodeName().equals(overseerNodeName) ) ) {
         return cluster.getReplicaJetty(r);
       }
     }

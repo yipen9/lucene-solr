@@ -359,17 +359,17 @@ public class SimClusterStateProvider implements ClusterStateProvider {
             if (leader != null && r.getName().equals(leader.getName())) {
               props.put("leader", "true");
             }
-            Replica ri = new Replica(r.getName(), r.getNode(), dc.getName(), s.getName(), r.getCoreName(), r.isLeader,
+            Replica ri = new Replica(r.getName(), r.getNodeName(), dc.getName(), s.getName(), r.getCoreName(),
                 r.getState(), r.getType(), props);
             if (leader != null && r.getName().equals(leader.getName())) {
               ri.getProperties().put("leader", "true");
             }
-            if (liveNodes.get().contains(r.getNode())) {
-              nodeReplicaMap.computeIfAbsent(r.getNode(), Utils.NEW_SYNCHRONIZED_ARRAYLIST_FUN).add(ri);
+            if (liveNodes.get().contains(r.getNodeName())) {
+              nodeReplicaMap.computeIfAbsent(r.getNodeName(), Utils.NEW_SYNCHRONIZED_ARRAYLIST_FUN).add(ri);
               colShardReplicaMap.computeIfAbsent(ri.getCollection(), name -> new ConcurrentHashMap<>())
                   .computeIfAbsent(ri.getShard(), shard -> new ArrayList<>()).add(ri);
             } else {
-              log.warn("- dropping replica because its node {} is not live: {}", r.getNode(), r);
+              log.warn("- dropping replica because its node {} is not live: {}", r.getNodeName(), r);
             }
           });
         });
@@ -415,7 +415,7 @@ public class SimClusterStateProvider implements ClusterStateProvider {
   private Replica getReplicaInfo(Replica r) {
     @SuppressWarnings({"unchecked"})
     final List<Replica> list = nodeReplicaMap.computeIfAbsent
-      (r.getNode(), Utils.NEW_SYNCHRONIZED_ARRAYLIST_FUN);
+      (r.getNodeName(), Utils.NEW_SYNCHRONIZED_ARRAYLIST_FUN);
     synchronized (list) {
       for (Replica ri : list) {
         if (r.getCoreName().equals(ri.getCoreName()) && r.getName().equals(ri.getName())) {
@@ -532,7 +532,8 @@ public class SimClusterStateProvider implements ClusterStateProvider {
     List<Replica> replicas = nodeReplicaMap.computeIfAbsent(nodeId, Utils.NEW_SYNCHRONIZED_ARRAYLIST_FUN);
     synchronized (replicas) {
       replicas.forEach(r -> {
-        r.getProperties().put(ZkStateReader.STATE_PROP, state.toString());
+        r.setState(state);
+        //r.getProperties().put(ZkStateReader.STATE_PROP, state.toString());
         if (state != Replica.State.ACTIVE) {
           r.getProperties().remove(ZkStateReader.LEADER_PROP);
         }
@@ -634,12 +635,11 @@ public class SimClusterStateProvider implements ClusterStateProvider {
           createReplica.collectionName,
           createReplica.sliceName,
           createReplica.coreName,
-          false,
           Replica.State.DOWN,
           createReplica.replicaType,
           message.getProperties()
       );
-      simAddReplica(ri.getNode(), ri, true);
+      simAddReplica(ri.getNodeName(), ri, true);
     }
     if (sessionWrapper.get() != null) {
       sessionWrapper.get().release();
@@ -686,17 +686,17 @@ public class SimClusterStateProvider implements ClusterStateProvider {
       if (replicaInfo.getName() == null) {
         throw new Exception("Missing name: " + replicaInfo);
       }
-      if (replicaInfo.getNode() == null) {
+      if (replicaInfo.getNodeName() == null) {
         throw new Exception("Missing node: " + replicaInfo);
       }
-      if (!replicaInfo.getNode().equals(nodeId)) {
+      if (!replicaInfo.getNodeName().equals(nodeId)) {
         throw new Exception("Wrong node (not " + nodeId + "): " + replicaInfo);
       }
       
       opDelay(replicaInfo.getCollection(), CollectionParams.CollectionAction.ADDREPLICA.name());
 
       // mark replica as active
-      replicaInfo.getProperties().put(ZkStateReader.STATE_PROP, Replica.State.ACTIVE.toString());
+      replicaInfo.setState(Replica.State.ACTIVE);
       // add a property expected in Policy calculations, if missing
       if (replicaInfo.get(Type.CORE_IDX.metricsAttribute) == null) {
         replicaInfo.getProperties().put(Type.CORE_IDX.metricsAttribute, new AtomicLong(SimCloudManager.DEFAULT_IDX_SIZE_BYTES));
@@ -892,7 +892,7 @@ public class SimClusterStateProvider implements ClusterStateProvider {
       }
       
       final Replica leader = s.getLeader();
-      if (null != leader && liveNodes.contains(leader.getNode())) {
+      if (null != leader && liveNodes.contains(leader.getNodeName())) {
         log.trace("-- already has livenode leader, skipping leader election {} / {}",
                   collection, slice);
         return;
@@ -932,7 +932,7 @@ public class SimClusterStateProvider implements ClusterStateProvider {
                 if (log.isTraceEnabled()) {
                   log.trace("-- replica not active on live nodes: {}, {}", liveNodes.get(), r);
                 }
-                if (!liveNodes.contains(r.getNode())) {
+                if (!liveNodes.contains(r.getNodeName())) {
                   ri.getProperties().put(ZkStateReader.STATE_PROP, Replica.State.DOWN.toString());
                   ri.getProperties().remove(ZkStateReader.LEADER_PROP);
                   stateChanged.set(true);
@@ -1109,7 +1109,7 @@ public class SimClusterStateProvider implements ClusterStateProvider {
             replicaProps.put("SEARCHER.searcher.numDocs", new AtomicLong(0));
             replicaProps.put("SEARCHER.searcher.maxDoc", new AtomicLong(0));
             Replica ri = new Replica("core_node" + Assign.incAndGetId(stateManager, withCollection, 0),
-                pos.node, withCollection, withCollectionShard, coreName, false, Replica.State.DOWN,
+                pos.node, withCollection, withCollectionShard, coreName, Replica.State.DOWN,
                 pos.type, replicaProps);
             cloudManager.submit(() -> {
               simAddReplica(pos.node, ri, false);
@@ -1133,7 +1133,7 @@ public class SimClusterStateProvider implements ClusterStateProvider {
         replicaProps.put("SEARCHER.searcher.numDocs", new AtomicLong(0));
         replicaProps.put("SEARCHER.searcher.maxDoc", new AtomicLong(0));
         Replica ri = new Replica("core_node" + Assign.incAndGetId(stateManager, collectionName, 0),
-            pos.node, collectionName, pos.shard, coreName, false, Replica.State.DOWN,
+            pos.node, collectionName, pos.shard, coreName, Replica.State.DOWN,
             pos.type, replicaProps);
         cloudManager.submit(() -> {
           simAddReplica(pos.node, ri, true);
@@ -1320,12 +1320,12 @@ public class SimClusterStateProvider implements ClusterStateProvider {
         .filter(e -> !NO_COPY_PROPS.contains(e.getKey()))
         .collect(Collectors.toMap(e -> e.getKey(), e -> e.getValue()));
     Replica newReplica = new Replica(coreNodeName, targetNode, collection, slice.getName(), newSolrCoreName,
-        false, Replica.State.DOWN, replica.getType(), props);
+        Replica.State.DOWN, replica.getType(), props);
     log.debug("-- new replica: {}", newReplica);
     // xxx should run leader election here already?
     simAddReplica(targetNode, newReplica, false);
     // this will trigger leader election
-    simRemoveReplica(replica.getNode(), collection, replica.getName());
+    simRemoveReplica(replica.getNodeName(), collection, replica.getName());
     results.add("success", "");
   }
 
@@ -1510,7 +1510,7 @@ public class SimClusterStateProvider implements ClusterStateProvider {
       replicaProps.put(Variable.coreidxsize, new AtomicDouble((Double)Type.CORE_IDX.convertVal(replicasIndexSize)));
 
       Replica ri = new Replica("core_node" + Assign.incAndGetId(stateManager, collectionName, 0),
-          subShardNodeName, collectionName, replicaPosition.shard, solrCoreName, false,
+          subShardNodeName, collectionName, replicaPosition.shard, solrCoreName,
           Replica.State.DOWN, replicaPosition.type, replicaProps);
       simAddReplica(replicaPosition.node, ri, false);
     }
@@ -1718,7 +1718,7 @@ public class SimClusterStateProvider implements ClusterStateProvider {
         // this is somewhat wrong - we should wait until buffered updates are applied
         // but this way the freedisk changes are much easier to track
         s.getReplicas().forEach(r ->
-            freediskDeltaPerNode.computeIfAbsent(r.getNode(), node -> new AtomicLong(0))
+            freediskDeltaPerNode.computeIfAbsent(r.getNodeName(), node -> new AtomicLong(0))
                 .addAndGet(DEFAULT_DOC_SIZE_BYTES));
 
         AtomicLong bufferedUpdates = (AtomicLong)sliceProperties.get(collection).get(s.getName()).get(BUFFERED_UPDATES);
@@ -1793,7 +1793,7 @@ public class SimClusterStateProvider implements ClusterStateProvider {
               long delta = indexSize.longValue() < SimCloudManager.DEFAULT_IDX_SIZE_BYTES ? 0 :
                   indexSize.longValue() - SimCloudManager.DEFAULT_IDX_SIZE_BYTES;
               s.getReplicas().forEach(r ->
-                  freediskDeltaPerNode.computeIfAbsent(r.getNode(), node -> new AtomicLong(0))
+                  freediskDeltaPerNode.computeIfAbsent(r.getNodeName(), node -> new AtomicLong(0))
                   .addAndGet(delta));
             } else {
               throw new RuntimeException("Missing index size in " + ri);
@@ -1882,7 +1882,7 @@ public class SimClusterStateProvider implements ClusterStateProvider {
             modified = true;
             long perSliceCount = perSlice[i];
             s.getReplicas().forEach(r ->
-                freediskDeltaPerNode.computeIfAbsent(r.getNode(), node -> new AtomicLong(0))
+                freediskDeltaPerNode.computeIfAbsent(r.getNodeName(), node -> new AtomicLong(0))
                     .addAndGet(-perSliceCount * DEFAULT_DOC_SIZE_BYTES));
             AtomicLong bufferedUpdates = (AtomicLong)sliceProperties.get(collection).get(s.getName()).get(BUFFERED_UPDATES);
             if (bufferedUpdates != null) {
@@ -1909,7 +1909,7 @@ public class SimClusterStateProvider implements ClusterStateProvider {
                 .incrementAndGet();
             modified = true;
             s.getReplicas().forEach(r ->
-                freediskDeltaPerNode.computeIfAbsent(r.getNode(), node -> new AtomicLong())
+                freediskDeltaPerNode.computeIfAbsent(r.getNodeName(), node -> new AtomicLong())
                     .addAndGet(-DEFAULT_DOC_SIZE_BYTES));
             AtomicLong bufferedUpdates = (AtomicLong)sliceProperties.get(collection).get(s.getName()).get(BUFFERED_UPDATES);
             if (bufferedUpdates != null) {

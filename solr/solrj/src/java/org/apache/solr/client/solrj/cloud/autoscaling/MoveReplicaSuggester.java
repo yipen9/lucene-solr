@@ -99,7 +99,7 @@ public class MoveReplicaSuggester extends Suggester {
   }
 
   static Comparator<Pair<Replica, Row>> leaderLast = (r1, r2) -> {
-    int leaderCompare = Boolean.compare(r1.first().isLeader, r2.first().isLeader);
+    int leaderCompare = Boolean.compare(r1.first().isLeader(), r2.first().isLeader());
     if ( leaderCompare != 0 ) {
       return leaderCompare;
     } else {

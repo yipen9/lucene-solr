@@ -155,7 +155,7 @@ public class TestWithCollection extends SolrCloudTestCase {
     assertNotNull(c1);
     assertEquals(abc, c1.getStr(WITH_COLLECTION));
     Replica replica = c1.getReplicas().get(0);
-    String nodeName = replica.getNode();
+    String nodeName = replica.getNodeName();
 
     assertEquals(chosenNode, nodeName);
   }
@@ -242,7 +242,7 @@ public class TestWithCollection extends SolrCloudTestCase {
     DocCollection collection = solrClient.getZkStateReader().getClusterState().getCollection(xyz);
     DocCollection withCollection = solrClient.getZkStateReader().getClusterState().getCollection(abc);
 
-    assertTrue(collection.getReplicas().stream().noneMatch(replica -> withCollection.getReplicas(replica.getNode()).isEmpty()));
+    assertTrue(collection.getReplicas().stream().noneMatch(replica -> withCollection.getReplicas(replica.getNodeName()).isEmpty()));
   }
 
   @Test
@@ -273,7 +273,7 @@ public class TestWithCollection extends SolrCloudTestCase {
         .process(solrClient);
 
     DocCollection collection = solrClient.getZkStateReader().getClusterState().getCollection(xyz);
-    assertEquals(chosenNode, collection.getReplicas().iterator().next().getNode());
+    assertEquals(chosenNode, collection.getReplicas().iterator().next().getNodeName());
 
 //    zkClient().printLayoutToStdOut();
 
@@ -283,8 +283,8 @@ public class TestWithCollection extends SolrCloudTestCase {
     DocCollection withCollection = solrClient.getZkStateReader().getClusterState().getCollection(abc);
 
     assertTrue(collection.getReplicas().stream().noneMatch(
-        replica -> withCollection.getReplicas(replica.getNode()) == null
-            || withCollection.getReplicas(replica.getNode()).isEmpty()));
+        replica -> withCollection.getReplicas(replica.getNodeName()) == null
+            || withCollection.getReplicas(replica.getNodeName()).isEmpty()));
   }
 
   @Test
@@ -333,8 +333,8 @@ public class TestWithCollection extends SolrCloudTestCase {
     collection = solrClient.getZkStateReader().getClusterState().getCollection(xyz); // refresh
     DocCollection withCollectionRefreshed = solrClient.getZkStateReader().getClusterState().getCollection(abc); // refresh
     assertTrue(collection.getReplicas().stream().noneMatch(
-        replica -> withCollectionRefreshed.getReplicas(replica.getNode()) == null
-            || withCollectionRefreshed.getReplicas(replica.getNode()).isEmpty()));
+        replica -> withCollectionRefreshed.getReplicas(replica.getNodeName()) == null
+            || withCollectionRefreshed.getReplicas(replica.getNodeName()).isEmpty()));
   }
 
   @Test
@@ -366,7 +366,7 @@ public class TestWithCollection extends SolrCloudTestCase {
         .process(solrClient);
 
     DocCollection collection = solrClient.getZkStateReader().getClusterState().getCollection(xyz);
-    assertEquals(chosenNode, collection.getReplicas().iterator().next().getNode());
+    assertEquals(chosenNode, collection.getReplicas().iterator().next().getNodeName());
 
     String otherNode = null;
     for (JettySolrRunner jettySolrRunner : cluster.getJettySolrRunners()) {
@@ -393,8 +393,8 @@ public class TestWithCollection extends SolrCloudTestCase {
 
     // sanity check that the failed move operation didn't actually change our co-location guarantees
     assertTrue(collection.getReplicas().stream().noneMatch(
-        replica -> withCollectionRefreshed.getReplicas(replica.getNode()) == null
-            || withCollectionRefreshed.getReplicas(replica.getNode()).isEmpty()));
+        replica -> withCollectionRefreshed.getReplicas(replica.getNodeName()) == null
+            || withCollectionRefreshed.getReplicas(replica.getNodeName()).isEmpty()));
   }
 
   /**
@@ -429,7 +429,7 @@ public class TestWithCollection extends SolrCloudTestCase {
         .process(solrClient);
 
     DocCollection collection = solrClient.getZkStateReader().getClusterState().getCollection(xyz);
-    assertEquals(chosenNode, collection.getReplicas().iterator().next().getNode());
+    assertEquals(chosenNode, collection.getReplicas().iterator().next().getNodeName());
 
     String setTriggerCommand = "{" +
         "'set-trigger' : {" +
@@ -477,7 +477,7 @@ public class TestWithCollection extends SolrCloudTestCase {
 
     // assert that the replica of xyz collection was not moved
     assertNotNull(collection.getReplica(xyzReplica.getName()));
-    assertEquals(chosenNode, collection.getReplicas().get(0).getNode());
+    assertEquals(chosenNode, collection.getReplicas().get(0).getNodeName());
 
     // add an extra replica of xyz collection -- this should be placed on the 'otherNode'
     addReplica = CollectionAdminRequest.addReplicaToShard(xyz, "shard1");
@@ -592,12 +592,12 @@ public class TestWithCollection extends SolrCloudTestCase {
   private void assertColocated(DocCollection collection, String noneOnNode, DocCollection withCollection) {
     // sanity check
     assertTrue(collection.getReplicas().stream().noneMatch(
-        replica -> withCollection.getReplicas(replica.getNode()) == null
-            || withCollection.getReplicas(replica.getNode()).isEmpty()));
+        replica -> withCollection.getReplicas(replica.getNodeName()) == null
+            || withCollection.getReplicas(replica.getNodeName()).isEmpty()));
 
     if (noneOnNode != null) {
       assertTrue(collection.getReplicas().stream().noneMatch(
-          replica -> noneOnNode.equals(replica.getNode())));
+          replica -> noneOnNode.equals(replica.getNodeName())));
     }
   }
 

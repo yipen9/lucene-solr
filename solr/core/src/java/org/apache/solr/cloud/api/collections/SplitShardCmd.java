@@ -157,10 +157,10 @@ public class SplitShardCmd implements OverseerCollectionMessageHandler.Cmd {
     t.stop();
 
     // let's record the ephemeralOwner of the parent leader node
-    Stat leaderZnodeStat = zkStateReader.getZkClient().exists(ZkStateReader.LIVE_NODES_ZKNODE + "/" + parentShardLeader.getNode(), null, true);
+    Stat leaderZnodeStat = zkStateReader.getZkClient().exists(ZkStateReader.LIVE_NODES_ZKNODE + "/" + parentShardLeader.getNodeName(), null, true);
     if (leaderZnodeStat == null)  {
       // we just got to know the leader but its live node is gone already!
-      throw new SolrException(SolrException.ErrorCode.SERVER_ERROR, "The shard leader node: " + parentShardLeader.getNode() + " is not live anymore!");
+      throw new SolrException(SolrException.ErrorCode.SERVER_ERROR, "The shard leader node: " + parentShardLeader.getNodeName() + " is not live anymore!");
     }
 
     List<DocRouter.Range> subRanges = new ArrayList<>();
@@ -224,7 +224,7 @@ public class SplitShardCmd implements OverseerCollectionMessageHandler.Cmd {
 
         {
           final ShardRequestTracker shardRequestTracker = ocmh.syncRequestTracker();
-          shardRequestTracker.sendShardRequest(parentShardLeader.getNode(), params, shardHandler);
+          shardRequestTracker.sendShardRequest(parentShardLeader.getNodeName(), params, shardHandler);
           SimpleOrderedMap<Object> getRangesResults = new SimpleOrderedMap<>();
           String msgOnError = "SPLITSHARD failed to invoke SPLIT.getRanges core admin command";
           shardRequestTracker.processResponses(getRangesResults, shardHandler, true, msgOnError);
@@ -287,7 +287,7 @@ public class SplitShardCmd implements OverseerCollectionMessageHandler.Cmd {
         collection = clusterState.getCollection(collectionName);
       }
 
-      String nodeName = parentShardLeader.getNode();
+      String nodeName = parentShardLeader.getNodeName();
 
       t = timings.sub("createSubSlicesAndLeadersInState");
       for (int i = 0; i < subRanges.size(); i++) {
@@ -389,7 +389,7 @@ public class SplitShardCmd implements OverseerCollectionMessageHandler.Cmd {
       t = timings.sub("splitParentCore");
       {
         final ShardRequestTracker shardRequestTracker = ocmh.asyncRequestTracker(asyncId);
-        shardRequestTracker.sendShardRequest(parentShardLeader.getNode(), params, shardHandler);
+        shardRequestTracker.sendShardRequest(parentShardLeader.getNodeName(), params, shardHandler);
 
         String msgOnError = "SPLITSHARD failed to invoke SPLIT core admin command";
         shardRequestTracker.processResponses(results, shardHandler, true, msgOnError);
@@ -514,7 +514,7 @@ public class SplitShardCmd implements OverseerCollectionMessageHandler.Cmd {
 
       long ephemeralOwner = leaderZnodeStat.getEphemeralOwner();
       // compare against the ephemeralOwner of the parent leader node
-      leaderZnodeStat = zkStateReader.getZkClient().exists(ZkStateReader.LIVE_NODES_ZKNODE + "/" + parentShardLeader.getNode(), null, true);
+      leaderZnodeStat = zkStateReader.getZkClient().exists(ZkStateReader.LIVE_NODES_ZKNODE + "/" + parentShardLeader.getNodeName(), null, true);
       if (leaderZnodeStat == null || ephemeralOwner != leaderZnodeStat.getEphemeralOwner()) {
         // put sub-shards in recovery_failed state
 
@@ -529,11 +529,11 @@ public class SplitShardCmd implements OverseerCollectionMessageHandler.Cmd {
 
         if (leaderZnodeStat == null)  {
           // the leader is not live anymore, fail the split!
-          throw new SolrException(SolrException.ErrorCode.SERVER_ERROR, "The shard leader node: " + parentShardLeader.getNode() + " is not live anymore!");
+          throw new SolrException(SolrException.ErrorCode.SERVER_ERROR, "The shard leader node: " + parentShardLeader.getNodeName() + " is not live anymore!");
         } else if (ephemeralOwner != leaderZnodeStat.getEphemeralOwner()) {
           // there's a new leader, fail the split!
           throw new SolrException(SolrException.ErrorCode.SERVER_ERROR,
-              "The zk session id for the shard leader node: " + parentShardLeader.getNode() + " has changed from "
+              "The zk session id for the shard leader node: " + parentShardLeader.getNodeName() + " has changed from "
                   + ephemeralOwner + " to " + leaderZnodeStat.getEphemeralOwner() + ". This can cause data loss so we must abort the split");
         }
       }
@@ -635,9 +635,9 @@ public class SplitShardCmd implements OverseerCollectionMessageHandler.Cmd {
     // check that enough disk space is available on the parent leader node
     // otherwise the actual index splitting will always fail
     NodeStateProvider nodeStateProvider = cloudManager.getNodeStateProvider();
-    Map<String, Object> nodeValues = nodeStateProvider.getNodeValues(parentShardLeader.getNode(),
+    Map<String, Object> nodeValues = nodeStateProvider.getNodeValues(parentShardLeader.getNodeName(),
         Collections.singletonList(ImplicitSnitch.DISK));
-    Map<String, Map<String, List<Replica>>> infos = nodeStateProvider.getReplicaInfo(parentShardLeader.getNode(),
+    Map<String, Map<String, List<Replica>>> infos = nodeStateProvider.getReplicaInfo(parentShardLeader.getNodeName(),
         Collections.singletonList(Type.CORE_IDX.metricsAttribute));
     if (infos.get(collection) == null || infos.get(collection).get(shard) == null) {
       throw new SolrException(SolrException.ErrorCode.SERVER_ERROR, "missing replica information for parent shard leader");
@@ -666,7 +666,7 @@ public class SplitShardCmd implements OverseerCollectionMessageHandler.Cmd {
     double neededSpace = method == SolrIndexSplitter.SplitMethod.REWRITE ? 2.0 * indexSize : 1.05 * indexSize;
     if (freeSize.doubleValue() < neededSpace) {
       throw new SolrException(SolrException.ErrorCode.SERVER_ERROR, "not enough free disk space to perform index split on node " +
-          parentShardLeader.getNode() + ", required: " + neededSpace + ", available: " + freeSize);
+          parentShardLeader.getNodeName() + ", required: " + neededSpace + ", available: " + freeSize);
     }
   }
 

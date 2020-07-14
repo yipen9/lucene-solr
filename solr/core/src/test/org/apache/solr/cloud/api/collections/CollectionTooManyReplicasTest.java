@@ -90,7 +90,7 @@ public class CollectionTooManyReplicasTest extends SolrCloudTestCase {
     Slice slice = collectionState.getSlice("shard1");
     Replica replica = getRandomReplica(slice, r -> r.getCoreName().equals("bogus2"));
     assertNotNull("Should have found a replica named 'bogus2'", replica);
-    assertEquals("Replica should have been put on correct node", nodeName, replica.getNode());
+    assertEquals("Replica should have been put on correct node", nodeName, replica.getNodeName());
 
     // Shard1 should have 2 replicas
     assertEquals("There should be 3 replicas for shard 1", 3, slice.getReplicas().size());
@@ -216,7 +216,7 @@ public class CollectionTooManyReplicasTest extends SolrCloudTestCase {
 
   private List<String> getAllNodeNames(String collectionName) throws KeeperException, InterruptedException {
     DocCollection state = getCollectionState(collectionName);
-    return state.getReplicas().stream().map(Replica::getNode).distinct().collect(Collectors.toList());
+    return state.getReplicas().stream().map(Replica::getNodeName).distinct().collect(Collectors.toList());
   }
 
 }

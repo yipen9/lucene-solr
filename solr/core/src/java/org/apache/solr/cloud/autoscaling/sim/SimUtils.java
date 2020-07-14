@@ -183,7 +183,7 @@ public class SimUtils {
       coll.getSlices().forEach(s -> {
         numCores.addAndGet(s.getReplicas().size());
         s.getReplicas().forEach(r -> {
-          nodes.computeIfAbsent(r.getNode(), n -> new HashMap<>())
+          nodes.computeIfAbsent(r.getNodeName(), n -> new HashMap<>())
               .computeIfAbsent(s.getName(), slice -> new AtomicInteger()).incrementAndGet();
         });
       });
@@ -274,7 +274,7 @@ public class SimUtils {
           }
         }
         perReplica.put("coreNode", ri.getName());
-        if (ri.isLeader || ri.getBool("leader", false)) {
+        if (ri.isLeader() || ri.getBool("leader", false)) {
           perReplica.put("leader", true);
           Double totalSize = (Double)collStats.computeIfAbsent(ri.getCollection(), c -> new HashMap<>())
               .computeIfAbsent("avgShardSize", size -> 0.0);

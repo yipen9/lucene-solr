@@ -187,7 +187,7 @@ public class CoreSorterTest extends SolrTestCaseJ4 {
     Map<String,String> props = map(
         CoreDescriptor.CORE_SHARD, r.getShard(),
         CoreDescriptor.CORE_COLLECTION, r.getCollection(),
-        CoreDescriptor.CORE_NODE_NAME, r.getNode()
+        CoreDescriptor.CORE_NODE_NAME, r.getNodeName()
     );
     return new CoreDescriptor(r.getCoreName(), TEST_PATH(), props , null, mock(ZkController.class));
   }

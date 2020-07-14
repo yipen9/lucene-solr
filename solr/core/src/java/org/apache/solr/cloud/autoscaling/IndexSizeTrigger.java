@@ -288,7 +288,7 @@ public class IndexSizeTrigger extends TriggerBase {
               return;
             }
             // not on this node
-            if (!r.getNode().equals(node)) {
+            if (!r.getNodeName().equals(node)) {
               return;
             }
             // find ReplicaInfo

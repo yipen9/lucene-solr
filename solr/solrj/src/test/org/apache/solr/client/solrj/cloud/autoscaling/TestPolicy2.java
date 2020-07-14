@@ -186,8 +186,8 @@ public class TestPolicy2 extends SolrTestCaseJ4 {
     Set<String> nodes = new HashSet<>(nodeVals.keySet());
     clusterState.getCollectionStates().forEach((s, collectionRef) -> collectionRef.get()
         .forEachReplica((s12, replica) -> {
-          nodes.add(replica.getNode());
-          coreCount.computeIfAbsent(replica.getNode(), s1 -> new AtomicInteger(0))
+          nodes.add(replica.getNodeName());
+          coreCount.computeIfAbsent(replica.getNodeName(), s1 -> new AtomicInteger(0))
               .incrementAndGet();
         }));
 
@@ -233,13 +233,13 @@ public class TestPolicy2 extends SolrTestCaseJ4 {
           @Override
           public Map<String, Map<String, List<Replica>>> getReplicaInfo(String node, Collection<String> keys) {
             @SuppressWarnings({"unchecked"})
-            Map<String, Map<String, List<ReplicaInfo>>> result = nodeVsCollectionVsShardVsReplicaInfo.computeIfAbsent(node, Utils.NEW_HASHMAP_FUN);
+            Map<String, Map<String, List<Replica>>> result = nodeVsCollectionVsShardVsReplicaInfo.computeIfAbsent(node, Utils.NEW_HASHMAP_FUN);
             if (!keys.isEmpty()) {
               Row.forEachReplica(result, replicaInfo -> {
                 for (String key : keys) {
                   if (!replicaInfo.getProperties().containsKey(key)) {
                     replicaVals.stream()
-                        .filter(it -> replicaInfo.getCore().equals(it.get("core")))
+                        .filter(it -> replicaInfo.getCoreName().equals(it.get("core")))
                         .findFirst()
                         .ifPresent(map -> replicaInfo.getProperties().put(key, map.get(key)));
                   }
@@ -280,10 +280,10 @@ public class TestPolicy2 extends SolrTestCaseJ4 {
           Map<String, Map<String, List<Map>>> replicas = (Map<String, Map<String, List<Map>>>) ((Map) o).get("replicas");
           replicas.forEach((coll, shardVsReplicas) -> shardVsReplicas
               .forEach((shard, repDetails) -> {
-                List<ReplicaInfo> reps = (List) ((Map) nodeDetails
+                List<Replica> reps = (List) ((Map) nodeDetails
                     .computeIfAbsent(coll, o1 -> new LinkedHashMap<>()))
-                    .computeIfAbsent(shard, o12 -> new ArrayList<ReplicaInfo>());
-                for (Map map : repDetails) reps.add(new ReplicaInfo(map));
+                    .computeIfAbsent(shard, o12 -> new ArrayList<Replica>());
+                for (Map map : repDetails) reps.add(new Replica(map));
               }));
         }
 

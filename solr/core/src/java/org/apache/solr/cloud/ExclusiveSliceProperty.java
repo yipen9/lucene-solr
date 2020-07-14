@@ -133,8 +133,8 @@ class ExclusiveSliceProperty {
           }
           continue;
         }
-        allHosts.add(replica.getNode());
-        String nodeName = replica.getNode();
+        allHosts.add(replica.getNodeName());
+        String nodeName = replica.getNodeName();
         if (StringUtils.isNotBlank(replica.getStr(property))) {
           if (sliceHasProp) {
             throw new SolrException(SolrException.ErrorCode.BAD_REQUEST,

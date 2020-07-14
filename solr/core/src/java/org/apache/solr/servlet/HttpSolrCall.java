@@ -960,7 +960,7 @@ public class HttpSolrCall {
       RandomIterator<Replica> it = new RandomIterator<>(random, replicas);
       while (it.hasNext()) {
         Replica replica = it.next();
-        if (liveNodes.contains(replica.getNode()) && replica.getState() == Replica.State.ACTIVE) {
+        if (liveNodes.contains(replica.getNodeName()) && replica.getState() == Replica.State.ACTIVE) {
           SolrCore core = checkProps(replica);
           if (core != null) return core;
         }
@@ -1062,7 +1062,7 @@ public class HttpSolrCall {
       Collections.shuffle(randomizedReplicas, random);
 
       for (Replica replica : randomizedReplicas) {
-        if (!activeReplicas || (liveNodes.contains(replica.getNode())
+        if (!activeReplicas || (liveNodes.contains(replica.getNodeName())
             && replica.getState() == Replica.State.ACTIVE)) {
 
           if (byCoreName && !origCorename.equals(replica.getStr(CORE_NAME_PROP))) {

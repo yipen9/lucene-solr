@@ -586,7 +586,7 @@ public class TestCollectionAPI extends ReplicaPropertiesBase {
 
       ModifiableSolrParams params = new ModifiableSolrParams();
       params.set("action", CollectionParams.CollectionAction.ADDROLE.toString());
-      params.set("node", replica.getNode());
+      params.set("node", replica.getNodeName());
       params.set("role", "overseer");
       @SuppressWarnings({"rawtypes"})
       SolrRequest request = new QueryRequest(params);
@@ -610,7 +610,7 @@ public class TestCollectionAPI extends ReplicaPropertiesBase {
       List<String> overseer = (List<String>) roles.get("overseer");
       assertNotNull(overseer);
       assertEquals(1, overseer.size());
-      assertTrue(overseer.contains(replica.getNode()));
+      assertTrue(overseer.contains(replica.getNodeName()));
     }
   }
 

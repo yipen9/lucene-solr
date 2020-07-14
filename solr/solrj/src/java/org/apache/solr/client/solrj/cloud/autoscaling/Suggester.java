@@ -481,7 +481,7 @@ public abstract class Suggester implements MapWriter {
         row.forEachReplica(r -> {
           if (withCollection.equals(r.getCollection()) &&
               "shard1".equals(r.getShard())) {
-            withCollectionNodes.add(r.getNode());
+            withCollectionNodes.add(r.getNodeName());
           }
         });
       }

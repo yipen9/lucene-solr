@@ -195,7 +195,7 @@ public class TestCloudSearcherWarming extends SolrCloudTestCase {
     // but clusterShape will also return true if replica is not live -- which we don't want
     CollectionStatePredicate collectionStatePredicate = (liveNodes, collectionState) -> {
       for (Replica r : collectionState.getReplicas()) {
-        if (r.getNode().equals(oldNodeName.get())) {
+        if (r.getNodeName().equals(oldNodeName.get())) {
           return r.getState() == Replica.State.DOWN;
         }
       }
@@ -262,7 +262,7 @@ public class TestCloudSearcherWarming extends SolrCloudTestCase {
               if (log.isInfoEnabled()) {
                 log.info("Checking node: {}", jettySolrRunner.getNodeName());
               }
-              if (jettySolrRunner.getNodeName().equals(replica.getNode())) {
+              if (jettySolrRunner.getNodeName().equals(replica.getNodeName())) {
                 SolrDispatchFilter solrDispatchFilter = jettySolrRunner.getSolrDispatchFilter();
                 try (SolrCore core = solrDispatchFilter.getCores().getCore(coreName)) {
                   if (core.getSolrConfig().useColdSearcher) {

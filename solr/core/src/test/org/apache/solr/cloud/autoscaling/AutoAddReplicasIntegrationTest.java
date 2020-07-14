@@ -419,7 +419,7 @@ public class AutoAddReplicasIntegrationTest extends SolrCloudTestCase {
     List<Replica> replacedHdfsReplicas = new ArrayList<>();
     for (Replica replica : zkStateReader.getClusterState().getCollection(collection).getReplicas()) {
       String dataDir = replica.getStr("dataDir");
-      if (replica.getNode().equals(lostNodeName) && dataDir != null) {
+      if (replica.getNodeName().equals(lostNodeName) && dataDir != null) {
         replacedHdfsReplicas.add(replica);
       }
     }

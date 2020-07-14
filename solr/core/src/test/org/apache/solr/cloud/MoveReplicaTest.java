@@ -116,7 +116,7 @@ public class MoveReplicaTest extends SolrCloudTestCase {
     Collections.shuffle(l, random());
     String targetNode = null;
     for (String node : liveNodes) {
-      if (!replica.getNode().equals(node)) {
+      if (!replica.getNodeName().equals(node)) {
         targetNode = node;
         break;
       }
@@ -129,7 +129,7 @@ public class MoveReplicaTest extends SolrCloudTestCase {
       }
     }
 
-    int sourceNumCores = getNumOfCores(cloudClient, replica.getNode(), coll, replica.getType().name());
+    int sourceNumCores = getNumOfCores(cloudClient, replica.getNodeName(), coll, replica.getType().name());
     int targetNumCores = getNumOfCores(cloudClient, targetNode, coll, replica.getType().name());
 
     CollectionAdminRequest.MoveReplica moveReplica = createMoveReplicaRequest(coll, replica, targetNode);
@@ -149,7 +149,7 @@ public class MoveReplicaTest extends SolrCloudTestCase {
       Thread.sleep(500);
     }
     assertTrue(success);
-    assertEquals("should be one less core on the source node!", sourceNumCores - 1, getNumOfCores(cloudClient, replica.getNode(), coll, replica.getType().name()));
+    assertEquals("should be one less core on the source node!", sourceNumCores - 1, getNumOfCores(cloudClient, replica.getNodeName(), coll, replica.getType().name()));
     assertEquals("should be one more core on target node!", targetNumCores + 1, getNumOfCores(cloudClient, targetNode, coll, replica.getType().name()));
     // wait for recovery
     boolean recovered = false;
@@ -161,7 +161,7 @@ public class MoveReplicaTest extends SolrCloudTestCase {
       boolean hasLeaders = true;
       if (replicas != null && !replicas.isEmpty()) {
         for (Replica r : replicas) {
-          if (!r.getNode().equals(targetNode)) {
+          if (!r.getNodeName().equals(targetNode)) {
             continue;
           }
           if (!r.isActive(Collections.singleton(targetNode))) {
@@ -194,7 +194,7 @@ public class MoveReplicaTest extends SolrCloudTestCase {
     moveReplica = createMoveReplicaRequest(coll, replica, targetNode, shardId);
     moveReplica.setInPlaceMove(inPlaceMove);
     moveReplica.process(cloudClient);
-    checkNumOfCores(cloudClient, replica.getNode(), coll, sourceNumCores);
+    checkNumOfCores(cloudClient, replica.getNodeName(), coll, sourceNumCores);
     // wait for recovery
     recovered = false;
     for (int i = 0; i < 300; i++) {
@@ -205,10 +205,10 @@ public class MoveReplicaTest extends SolrCloudTestCase {
       boolean hasLeaders = true;
       if (replicas != null && !replicas.isEmpty()) {
         for (Replica r : replicas) {
-          if (!r.getNode().equals(replica.getNode())) {
+          if (!r.getNodeName().equals(replica.getNodeName())) {
             continue;
           }
-          if (!r.isActive(Collections.singleton(replica.getNode()))) {
+          if (!r.isActive(Collections.singleton(replica.getNodeName()))) {
             log.info("Not active yet: {}", r);
             allActive = false;
           }
@@ -262,14 +262,14 @@ public class MoveReplicaTest extends SolrCloudTestCase {
     int count = 10;
     do {
       replica = getRandomReplica(coll, cloudClient);
-    } while (!replica.getNode().equals(overseerLeader) && count-- > 0);
+    } while (!replica.getNodeName().equals(overseerLeader) && count-- > 0);
     assertNotNull("could not find non-overseer replica???", replica);
     Set<String> liveNodes = cloudClient.getZkStateReader().getClusterState().getLiveNodes();
     ArrayList<String> l = new ArrayList<>(liveNodes);
     Collections.shuffle(l, random());
     String targetNode = null;
     for (String node : liveNodes) {
-      if (!replica.getNode().equals(node) && !overseerLeader.equals(node)) {
+      if (!replica.getNodeName().equals(node) && !overseerLeader.equals(node)) {
         targetNode = node;
         break;
       }
@@ -309,7 +309,7 @@ public class MoveReplicaTest extends SolrCloudTestCase {
   }
 
   private CollectionAdminRequest.MoveReplica createMoveReplicaRequest(String coll, Replica replica, String targetNode, String shardId) {
-    return new CollectionAdminRequest.MoveReplica(coll, shardId, targetNode, replica.getNode());
+    return new CollectionAdminRequest.MoveReplica(coll, shardId, targetNode, replica.getNodeName());
   }
 
   private CollectionAdminRequest.MoveReplica createMoveReplicaRequest(String coll, Replica replica, String targetNode) {

@@ -116,7 +116,7 @@ public class CreateSnapshotCmd implements OverseerCollectionMessageHandler.Cmd {
         params.set(CORE_NAME_PROP, coreName);
         params.set(CoreAdminParams.COMMIT_NAME, commitName);
 
-        shardRequestTracker.sendShardRequest(replica.getNode(), params, shardHandler);
+        shardRequestTracker.sendShardRequest(replica.getNodeName(), params, shardHandler);
         log.debug("Sent createsnapshot request to core={} with commitName={}", coreName, commitName);
 
         shardByCoreName.put(coreName, slice);

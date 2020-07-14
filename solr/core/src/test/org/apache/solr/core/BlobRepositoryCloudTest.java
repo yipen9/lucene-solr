@@ -94,7 +94,7 @@ public class BlobRepositoryCloudTest extends SolrCloudTestCase {
   // TODO: move this up to parent class?
   private static String findLiveNodeURI() {
     ZkStateReader zkStateReader = cluster.getSolrClient().getZkStateReader();
-    return zkStateReader.getBaseUrlForNodeName(zkStateReader.getClusterState().getCollection(".system").getSlices().iterator().next().getLeader().getNode());
+    return zkStateReader.getBaseUrlForNodeName(zkStateReader.getClusterState().getCollection(".system").getSlices().iterator().next().getLeader().getNodeName());
   }
 
   private void assertLastQueryToCollection(String collection) throws SolrServerException, IOException {

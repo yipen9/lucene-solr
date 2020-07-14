@@ -106,7 +106,7 @@ public class ForceLeaderTest extends HttpPartitionTest {
 
       int numReplicasOnLiveNodes = 0;
       for (Replica rep : clusterState.getCollection(testCollectionName).getSlice(SHARD1).getReplicas()) {
-        if (clusterState.getLiveNodes().contains(rep.getNode())) {
+        if (clusterState.getLiveNodes().contains(rep.getNodeName())) {
           numReplicasOnLiveNodes++;
         }
       }
@@ -202,7 +202,7 @@ public class ForceLeaderTest extends HttpPartitionTest {
 
     // Kill the leader
     if (log.isInfoEnabled()) {
-      log.info("Killing leader for shard1 of {} on node {}", collectionName, leader.getNode());
+      log.info("Killing leader for shard1 of {} on node {}", collectionName, leader.getNodeName());
     }
     leaderJetty.stop();
 

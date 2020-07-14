@@ -303,7 +303,7 @@ public final class ManagedIndexSchema extends IndexSchema {
             Replica replica = entry.getValue();
             if (!localCoreNodeName.equals(replica.getName()) &&
                 replica.getState() == Replica.State.ACTIVE &&
-                liveNodes.contains(replica.getNode())) {
+                liveNodes.contains(replica.getNodeName())) {
               ZkCoreNodeProps replicaCoreProps = new ZkCoreNodeProps(replica);
               activeReplicaCoreUrls.add(replicaCoreProps.getCoreUrl());
             }

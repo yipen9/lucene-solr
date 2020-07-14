@@ -102,11 +102,11 @@ public final class CoreSorter implements Comparator<CoreDescriptor> {
       if (shardsVsReplicaCounts.containsKey(sliceName)) continue;
       CountsForEachShard c = new CountsForEachShard(0, 0, 0);
       for (Replica replica : getReplicas(state, coll, cloudDescriptor.getShardId())) {
-        if (replica.getNode().equals(myNodeName)) {
+        if (replica.getNodeName().equals(myNodeName)) {
           c.myReplicas++;
         } else {
           Set<String> liveNodes = state.getLiveNodes();
-          if (liveNodes.contains(replica.getNode())) {
+          if (liveNodes.contains(replica.getNodeName())) {
             c.totalReplicasInLiveNodes++;
           } else {
             c.totalReplicasInDownNodes++;

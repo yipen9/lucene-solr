@@ -38,7 +38,6 @@ import org.apache.solr.client.solrj.cloud.NodeStateProvider;
 import org.apache.solr.client.solrj.cloud.SolrCloudManager;
 import org.apache.solr.common.MapWriter;
 import org.apache.solr.common.cloud.Replica;
-import org.apache.solr.common.cloud.ZkStateReader;
 import org.apache.solr.common.util.Pair;
 import org.apache.solr.common.util.Utils;
 import org.slf4j.Logger;
@@ -254,7 +253,7 @@ public class Row implements MapWriter {
     Map<String, List<Replica>> c = row.collectionVsShardVsReplicas.computeIfAbsent(coll, k -> new HashMap<>());
     List<Replica> replicas = c.computeIfAbsent(shard, k -> new ArrayList<>());
     String replicaname = "SYNTHETIC." + new Random().nextInt(1000) + 1000;
-    Replica ri = new Replica(replicaname, this.node, coll, shard, replicaname, false,
+    Replica ri = new Replica(replicaname, this.node, coll, shard, replicaname,
         Replica.State.ACTIVE, type != null ? type : Replica.Type.NRT, Collections.emptyMap());
     replicas.add(ri);
     for (Cell cell : row.cells) {

@@ -110,7 +110,7 @@ public class SolrClientNodeStateProvider implements NodeStateProvider, MapWriter
         withCollectionsMap.put(coll.getName(), (String) coll.getProperties().get(CollectionAdminParams.WITH_COLLECTION));
       }
       coll.forEachReplica((shard, replica) -> {
-        Map<String, Map<String, List<Replica>>> nodeData = nodeVsCollectionVsShardVsReplicaInfo.computeIfAbsent(replica.getNode(), k -> new HashMap<>());
+        Map<String, Map<String, List<Replica>>> nodeData = nodeVsCollectionVsShardVsReplicaInfo.computeIfAbsent(replica.getNodeName(), k -> new HashMap<>());
         Map<String, List<Replica>> collData = nodeData.computeIfAbsent(collName, k -> new HashMap<>());
         List<Replica> replicas = collData.computeIfAbsent(shard, k -> new ArrayList<>());
         replicas.add((Replica) replica.clone());

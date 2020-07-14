@@ -610,7 +610,7 @@ public class BaseCdcrDistributedZkTest extends AbstractDistribZkTestBase {
     List<String> nodeNames = new ArrayList<>();
     for (Slice shard : zkStateReader.getClusterState().getCollection(temporaryCollection).getSlices()) {
       for (Replica replica : shard.getReplicas()) {
-        nodeNames.add(replica.getNode());
+        nodeNames.add(replica.getNodeName());
       }
     }
 
@@ -742,7 +742,7 @@ public class BaseCdcrDistributedZkTest extends AbstractDistribZkTestBase {
       this.coreNodeName = coreNodeName;
       nodeProperties.setProperty(CoreDescriptor.CORE_NODE_NAME, this.coreNodeName);
 
-      this.nodeName = replica.getNode();
+      this.nodeName = replica.getNodeName();
 
       ZkCoreNodeProps coreNodeProps = new ZkCoreNodeProps(info);
       this.url = coreNodeProps.getCoreUrl();

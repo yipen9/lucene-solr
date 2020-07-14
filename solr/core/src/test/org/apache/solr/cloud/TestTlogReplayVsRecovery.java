@@ -148,7 +148,7 @@ public class TestTlogReplayVsRecovery extends SolrCloudTestCase {
     waitForState("Timeout waiting for 1x2 collection", COLLECTION, clusterShape(1, 2));
     
     final Replica leader = getCollectionState(COLLECTION).getSlice("shard1").getLeader();
-    assertEquals("Sanity check failed", NODE0.getNodeName(), leader.getNode());
+    assertEquals("Sanity check failed", NODE0.getNodeName(), leader.getNodeName());
 
     log.info("Add and commit {} docs...", committedDocs);
     addDocs(true, committedDocs, 1);

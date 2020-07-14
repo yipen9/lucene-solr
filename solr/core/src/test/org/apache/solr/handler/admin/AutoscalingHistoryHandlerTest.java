@@ -348,7 +348,7 @@ public class AutoscalingHistoryHandlerTest extends SolrCloudTestCase {
     if (system != null) {
       systemLeaderNodes = system.getReplicas().stream()
           .filter(r -> r.getBool("leader", false))
-          .map(r -> r.getNode())
+          .map(r -> r.getNodeName())
           .collect(Collectors.toSet());
     } else {
       systemLeaderNodes = Collections.emptySet();
@@ -356,12 +356,12 @@ public class AutoscalingHistoryHandlerTest extends SolrCloudTestCase {
     String nodeToKill = null;
     for (Replica r : coll.getReplicas()) {
       if (r.isActive(state.getLiveNodes()) &&
-          !r.getNode().equals(overseerLeader)) {
-        if (systemLeaderNodes.contains(r.getNode())) {
+          !r.getNodeName().equals(overseerLeader)) {
+        if (systemLeaderNodes.contains(r.getNodeName())) {
           log.info("--skipping .system leader replica {}", r);
           continue;
         }
-        nodeToKill = r.getNode();
+        nodeToKill = r.getNodeName();
         break;
       }
     }
@@ -431,7 +431,7 @@ public class AutoscalingHistoryHandlerTest extends SolrCloudTestCase {
       hasLeaders = true;
       if (replicas != null && !replicas.isEmpty()) {
         for (Replica r : replicas) {
-          if (state.getLiveNodes().contains(r.getNode())) {
+          if (state.getLiveNodes().contains(r.getNodeName())) {
             if (!r.isActive(state.getLiveNodes())) {
               log.info("Not active: {}", r);
               allActive = false;

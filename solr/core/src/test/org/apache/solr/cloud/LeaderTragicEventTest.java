@@ -96,8 +96,8 @@ public class LeaderTragicEventTest extends SolrCloudTestCase {
       });
       ClusterStateUtil.waitForAllActiveAndLiveReplicas(cluster.getSolrClient().getZkStateReader(), collection, 120000);
       Slice shard = getCollectionState(collection).getSlice("shard1");
-      assertNotSame(shard.getLeader().getNode(), oldLeader.getNode());
-      assertEquals(getNonLeader(shard).getNode(), oldLeader.getNode());
+      assertNotSame(shard.getLeader().getNodeName(), oldLeader.getNodeName());
+      assertEquals(getNonLeader(shard).getNodeName(), oldLeader.getNodeName());
 
       for (String id : addedIds) {
         assertNotNull(cluster.getSolrClient().getById(collection,id));

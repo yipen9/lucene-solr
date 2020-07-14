@@ -265,7 +265,7 @@ public class CdcrTestsUtil extends SolrTestCaseJ4 {
   public static String getLeaderNode(MiniSolrCloudCluster cluster, String collection) throws Exception {
     for (Replica replica : cluster.getSolrClient().getClusterStateProvider().getCollection(collection).getReplicas()) {
       if (cluster.getSolrClient().getClusterStateProvider().getCollection(collection).getLeader("shard1") == replica) {
-        return replica.getNode();
+        return replica.getNodeName();
       }
     }
     return "";

@@ -239,7 +239,7 @@ public class DeleteReplicaTest extends SolrCloudTestCase {
     ZkNodeProps m = new ZkNodeProps(
         Overseer.QUEUE_OPERATION, OverseerAction.DELETECORE.toLower(),
         ZkStateReader.CORE_NAME_PROP, replica.getCoreName(),
-        ZkStateReader.NODE_NAME_PROP, replica.getNode(),
+        ZkStateReader.NODE_NAME_PROP, replica.getNodeName(),
         ZkStateReader.COLLECTION_PROP, collectionName,
         ZkStateReader.CORE_NODE_NAME_PROP, replica.getName(),
         ZkStateReader.BASE_URL_PROP, replica.getBaseUrl());
@@ -305,7 +305,7 @@ public class DeleteReplicaTest extends SolrCloudTestCase {
           ZkNodeProps m = new ZkNodeProps(
               Overseer.QUEUE_OPERATION, OverseerAction.DELETECORE.toLower(),
               ZkStateReader.CORE_NAME_PROP, replica1.getCoreName(),
-              ZkStateReader.NODE_NAME_PROP, replica1.getNode(),
+              ZkStateReader.NODE_NAME_PROP, replica1.getNodeName(),
               ZkStateReader.COLLECTION_PROP, collectionName,
               ZkStateReader.CORE_NODE_NAME_PROP, replica1.getName(),
               ZkStateReader.BASE_URL_PROP, replica1.getBaseUrl());
@@ -390,7 +390,7 @@ public class DeleteReplicaTest extends SolrCloudTestCase {
   private JettySolrRunner getJettyForReplica(Replica replica) {
     for (JettySolrRunner jetty : cluster.getJettySolrRunners()) {
       String nodeName = jetty.getNodeName();
-      if (nodeName != null && nodeName.equals(replica.getNode())) return jetty;
+      if (nodeName != null && nodeName.equals(replica.getNodeName())) return jetty;
     }
     throw new IllegalArgumentException("Can not find jetty for replica "+ replica);
   }

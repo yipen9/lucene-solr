@@ -131,16 +131,16 @@ public abstract class ReplicaPropertiesBase extends AbstractFullDistribZkTestBas
         boolean thisSliceHasProp = false;
         int propCount = 0;
         for (Replica replica : slice.getReplicas()) {
-          uniqueNodes.add(replica.getNode());
+          uniqueNodes.add(replica.getNodeName());
           String propVal = replica.getProperty(property);
           if (StringUtils.isNotBlank(propVal)) {
             ++propCount;
-            if (counts.containsKey(replica.getNode()) == false) {
-              counts.put(replica.getNode(), 0);
+            if (counts.containsKey(replica.getNodeName()) == false) {
+              counts.put(replica.getNodeName(), 0);
             }
-            int count = counts.get(replica.getNode());
+            int count = counts.get(replica.getNodeName());
             thisSliceHasProp = true;
-            counts.put(replica.getNode(), count + 1);
+            counts.put(replica.getNodeName(), count + 1);
           }
         }
         badSlice = (propCount > 1) ? true : badSlice;

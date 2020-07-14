@@ -157,7 +157,7 @@ public class IndexSizeTriggerSizeEstimationTest extends SolrCloudTestCase {
     final String registry = SolrCoreMetricManager.createRegistryName(true, collectionName, "shard1", replicaName, null);
     Set<String> tags = SimUtils.COMMON_REPLICA_TAGS.stream()
         .map(s -> "metrics:" + registry + ":" + s).collect(Collectors.toSet());
-    Map<String, Object> sizes = cloudManager.getNodeStateProvider().getNodeValues(leader.getNode(), tags);
+    Map<String, Object> sizes = cloudManager.getNodeStateProvider().getNodeValues(leader.getNodeName(), tags);
     String commitSizeTag = "metrics:" + registry + ":SEARCHER.searcher.indexCommitSize";
     String numDocsTag = "metrics:" + registry + ":SEARCHER.searcher.numDocs";
     String maxDocTag = "metrics:" + registry + ":SEARCHER.searcher.maxDoc";
@@ -283,7 +283,7 @@ public class IndexSizeTriggerSizeEstimationTest extends SolrCloudTestCase {
         final String subregistry = SolrCoreMetricManager.createRegistryName(true, collectionName, subShard, replicaName, null);
         Set<String> subtags = SimUtils.COMMON_REPLICA_TAGS.stream()
             .map(s -> "metrics:" + subregistry + ":" + s).collect(Collectors.toSet());
-        sizes = cloudManager.getNodeStateProvider().getNodeValues(leader.getNode(), subtags);
+        sizes = cloudManager.getNodeStateProvider().getNodeValues(leader.getNodeName(), subtags);
         commitSizeTag = "metrics:" + subregistry + ":SEARCHER.searcher.indexCommitSize";
         numDocsTag = "metrics:" + subregistry + ":SEARCHER.searcher.numDocs";
         maxDocTag = "metrics:" + subregistry + ":SEARCHER.searcher.maxDoc";

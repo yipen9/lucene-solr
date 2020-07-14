@@ -173,7 +173,7 @@ public class TestUtilizeNode extends SolrCloudTestCase {
     List<Replica> results = new ArrayList<>(3);
     if (collection != null) {
       collection.forEachReplica((s, replica) -> {
-        if (replica.getNode().equals(jettyNode.getNodeName())) {
+        if (replica.getNodeName().equals(jettyNode.getNodeName())) {
           results.add(replica);
         }
       });

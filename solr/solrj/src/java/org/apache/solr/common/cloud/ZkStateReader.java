@@ -852,7 +852,7 @@ public class ZkStateReader implements SolrCloseable {
 
   public Replica getLeader(Set<String> liveNodes, DocCollection docCollection, String shard) {
     Replica replica = docCollection != null ? docCollection.getLeader(shard) : null;
-    if (replica != null && liveNodes.contains(replica.getNode())) {
+    if (replica != null && liveNodes.contains(replica.getNodeName())) {
       return replica;
     }
     return null;
@@ -862,7 +862,7 @@ public class ZkStateReader implements SolrCloseable {
     if (clusterState != null) {
       DocCollection docCollection = clusterState.getCollectionOrNull(collection);
       Replica replica = docCollection != null ? docCollection.getLeader(shard) : null;
-      if (replica != null && getClusterState().liveNodesContain(replica.getNode())) {
+      if (replica != null && getClusterState().liveNodesContain(replica.getNodeName())) {
         return replica;
       }
     }

@@ -91,7 +91,7 @@ public class FreeDiskVariable extends VariableBase {
       List<Row> matchingNodes = ctx.session.matrix.stream().filter(
           row -> ctx.violation.getViolatingReplicas()
               .stream()
-              .anyMatch(p -> row.node.equals(p.replicaInfo.getNode())))
+              .anyMatch(p -> row.node.equals(p.replicaInfo.getNodeName())))
           .sorted(Comparator.comparing(r -> ((Double) r.getVal(DISK, 0d))))
           .collect(Collectors.toList());
 

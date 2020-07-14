@@ -747,7 +747,7 @@ public abstract class AbstractFullDistribZkTestBase extends AbstractDistribZkTes
   }
 
   protected int getReplicaPort(Replica replica) {
-    String replicaNode = replica.getNode();
+    String replicaNode = replica.getNodeName();
     String tmp = replicaNode.substring(replicaNode.indexOf(':')+1);
     if (tmp.indexOf('_') != -1)
       tmp = tmp.substring(0,tmp.indexOf('_'));
@@ -1933,7 +1933,7 @@ public abstract class AbstractFullDistribZkTestBase extends AbstractDistribZkTes
       for (String sliceName : slices.keySet()) {
         for (Replica replica : slices.get(sliceName).getReplicas()) {
           if (nodesAllowedToRunShards != null && !nodesAllowedToRunShards.contains(replica.getStr(ZkStateReader.NODE_NAME_PROP))) {
-            return "Shard " + replica.getName() + " created on node " + replica.getNode() + " not allowed to run shards for the created collection " + collectionName;
+            return "Shard " + replica.getName() + " created on node " + replica.getNodeName() + " not allowed to run shards for the created collection " + collectionName;
           }
         }
         totalShards += slices.get(sliceName).getReplicas().size();
@@ -2117,7 +2117,7 @@ public abstract class AbstractFullDistribZkTestBase extends AbstractDistribZkTes
       assertNotNull(leader);
       if (log.isInfoEnabled()) {
         log.info("Found {}  replicas and leader on {} for {} in {}"
-            , replicas.size(), leader.getNode(), shardId, testCollectionName);
+            , replicas.size(), leader.getNodeName(), shardId, testCollectionName);
       }
 
       // ensure all replicas are "active" and identify the non-leader replica
@@ -2261,7 +2261,7 @@ public abstract class AbstractFullDistribZkTestBase extends AbstractDistribZkTes
         fail("Unable to get leader indexVersion");
       }
       for (Replica pullReplica:s.getReplicas(EnumSet.of(Replica.Type.PULL,Replica.Type.TLOG))) {
-        if (!zkStateReader.getClusterState().liveNodesContain(pullReplica.getNode())) {
+        if (!zkStateReader.getClusterState().liveNodesContain(pullReplica.getNodeName())) {
           continue;
         }
         while (true) {
@@ -2273,7 +2273,7 @@ public abstract class AbstractFullDistribZkTestBase extends AbstractDistribZkTes
             }
             
             // Make sure the host is serving the correct version
-            try (SolrCore core = containers.get(pullReplica.getNode()).getCore(pullReplica.getCoreName())) {
+            try (SolrCore core = containers.get(pullReplica.getNodeName()).getCore(pullReplica.getCoreName())) {
               RefCounted<SolrIndexSearcher> ref = core.getRegisteredSearcher();
               try {
                 SolrIndexSearcher searcher = ref.get();

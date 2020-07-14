@@ -677,7 +677,7 @@ public class TestTlogReplica extends SolrCloudTestCase {
           if (leader == null || !leader.isActive(cluster.getSolrClient().getZkStateReader().getClusterState().getLiveNodes())) {
             return false;
           }
-          return oldLeaderJetty == null || !leader.getNode().equals(oldLeaderJetty.getNodeName());
+          return oldLeaderJetty == null || !leader.getNodeName().equals(oldLeaderJetty.getNodeName());
         }
     );
   }
@@ -829,10 +829,10 @@ public class TestTlogReplica extends SolrCloudTestCase {
         if (r.getState() != Replica.State.DOWN && r.getState() != Replica.State.ACTIVE) {
           return false;
         }
-        if (r.getState() == Replica.State.DOWN && liveNodes.contains(r.getNode())) {
+        if (r.getState() == Replica.State.DOWN && liveNodes.contains(r.getNodeName())) {
           return false;
         }
-        if (r.getState() == Replica.State.ACTIVE && !liveNodes.contains(r.getNode())) {
+        if (r.getState() == Replica.State.ACTIVE && !liveNodes.contains(r.getNodeName())) {
           return false;
         }
       }

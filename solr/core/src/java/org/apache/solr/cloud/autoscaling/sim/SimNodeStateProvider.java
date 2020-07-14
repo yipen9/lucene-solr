@@ -293,7 +293,7 @@ public class SimNodeStateProvider implements NodeStateProvider {
       String replica = m.group(3);
       List<Replica> replicas = clusterStateProvider.simGetReplicaInfos(collection, shard);
       replicas.forEach(r -> {
-        if (r.getNode().equals(node) && r.getCoreName().endsWith(replica)) {
+        if (r.getNodeName().equals(node) && r.getCoreName().endsWith(replica)) {
           Object value = r.getProperties().get(key);
           if (value != null) {
             values.put(tag, value);

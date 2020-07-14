@@ -399,7 +399,7 @@ public class HttpPartitionTest extends AbstractFullDistribZkTestBase {
 
     Replica leader =
         cloudClient.getZkStateReader().getLeaderRetry(testCollectionName, "shard1");
-    String leaderNode = leader.getNode();
+    String leaderNode = leader.getNodeName();
     assertNotNull("Could not find leader for shard1 of "+
         testCollectionName+"; clusterState: "+printClusterStateInfo(testCollectionName), leader);
     JettySolrRunner leaderJetty = getJettyOnPort(getReplicaPort(leader));
@@ -582,7 +582,7 @@ public class HttpPartitionTest extends AbstractFullDistribZkTestBase {
   }
 
   protected int getReplicaPort(Replica replica) {
-    String replicaNode = replica.getNode();
+    String replicaNode = replica.getNodeName();
     String tmp = replicaNode.substring(replicaNode.indexOf(':')+1);
     if (tmp.indexOf('_') != -1)
       tmp = tmp.substring(0,tmp.indexOf('_'));

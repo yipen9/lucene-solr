@@ -84,7 +84,7 @@ public class DeleteNodeTest extends SolrCloudTestCase {
         boolean hasOtherNonPullReplicas = false;
         for (Replica r: slice.getReplicas()) {
           if (!r.getName().equals(replica.getName()) &&
-              !r.getNode().equals(node2bdecommissioned) &&
+              !r.getNodeName().equals(node2bdecommissioned) &&
               r.getType() != Replica.Type.PULL) {
             hasOtherNonPullReplicas = true;
             break;

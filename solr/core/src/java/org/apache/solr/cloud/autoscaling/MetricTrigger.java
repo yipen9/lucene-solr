@@ -133,7 +133,7 @@ public class MetricTrigger extends TriggerBase {
         }
         if (shard.equals(Policy.ANY)) {
           docCollection.getReplicas().forEach(replica -> {
-            nodes.add(replica.getNode());
+            nodes.add(replica.getNodeName());
           });
         } else {
           Slice slice = docCollection.getSlice(shard);
@@ -141,7 +141,7 @@ public class MetricTrigger extends TriggerBase {
             log.warn("MetricTrigger could not find collection: {} shard: {}", collection, shard);
             return;
           }
-          slice.getReplicas().forEach(replica -> nodes.add(replica.getNode()));
+          slice.getReplicas().forEach(replica -> nodes.add(replica.getNodeName()));
         }
         liveNodes = nodes;
       }

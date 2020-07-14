@@ -127,7 +127,7 @@ public class TestCloudConsistency extends SolrCloudTestCase {
     addDocs(collectionName, 3, 1);
 
     final Replica oldLeader = getCollectionState(collectionName).getSlice("shard1").getLeader();
-    assertEquals(cluster.getJettySolrRunner(0).getNodeName(), oldLeader.getNode());
+    assertEquals(cluster.getJettySolrRunner(0).getNodeName(), oldLeader.getNodeName());
 
     if (onRestart) {
       addDocToWhenOtherReplicasAreDown(collectionName, oldLeader, 4);

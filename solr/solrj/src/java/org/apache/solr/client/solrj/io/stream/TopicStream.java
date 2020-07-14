@@ -423,7 +423,7 @@ public class TopicStream extends CloudSolrStream implements Expressible  {
     params.set(DISTRIB, "false");
     params.set("rows", 1);
     for(Replica replica : replicas) {
-      if(replica.getState() == Replica.State.ACTIVE && liveNodes.contains(replica.getNode())) {
+      if(replica.getState() == Replica.State.ACTIVE && liveNodes.contains(replica.getNodeName())) {
         String coreUrl = replica.getCoreUrl();
         SolrStream solrStream = new SolrStream(coreUrl, params);
 
@@ -484,7 +484,7 @@ public class TopicStream extends CloudSolrStream implements Expressible  {
     for(Slice slice : slices) {
       Collection<Replica> replicas = slice.getReplicas();
       for(Replica replica : replicas) {
-        if(replica.getState() == Replica.State.ACTIVE && liveNodes.contains(replica.getNode())){
+        if(replica.getState() == Replica.State.ACTIVE && liveNodes.contains(replica.getNodeName())){
           HttpSolrClient httpClient = streamContext.getSolrClientCache().getHttpSolrClient(replica.getCoreUrl());
           try {
             SolrDocument doc = httpClient.getById(id);
@@ -531,7 +531,7 @@ public class TopicStream extends CloudSolrStream implements Expressible  {
         Collection<Replica> replicas = slice.getReplicas();
         List<Replica> shuffler = new ArrayList<>();
         for(Replica replica : replicas) {
-          if(replica.getState() == Replica.State.ACTIVE && liveNodes.contains(replica.getNode()))
+          if(replica.getState() == Replica.State.ACTIVE && liveNodes.contains(replica.getNodeName()))
             shuffler.add(replica);
         }
 

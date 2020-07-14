@@ -32,7 +32,6 @@ import org.apache.solr.client.solrj.SolrRequest;
 import org.apache.solr.client.solrj.SolrServerException;
 import org.apache.solr.client.solrj.cloud.autoscaling.AutoScalingConfig;
 import org.apache.solr.client.solrj.cloud.autoscaling.Policy;
-import org.apache.solr.client.solrj.cloud.autoscaling.ReplicaInfo;
 import org.apache.solr.client.solrj.cloud.autoscaling.Row;
 import org.apache.solr.client.solrj.cloud.autoscaling.Variable.Type;
 import org.apache.solr.client.solrj.request.CollectionAdminRequest;
@@ -105,7 +104,7 @@ public class TestSimPolicyCloud extends SimSolrCloudTestCase {
     AtomicInteger count = new AtomicInteger(0);
     for (Row row : session.getSortedNodes()) {
       row.collectionVsShardVsReplicas.forEach((c, shardVsReplicas) -> shardVsReplicas.forEach((s, replicaInfos) -> {
-        for (ReplicaInfo replicaInfo : replicaInfos) {
+        for (Replica replicaInfo : replicaInfos) {
           if (replicaInfo.getProperties().containsKey(Type.CORE_IDX.tagName)) count.incrementAndGet();
         }
       }));
@@ -133,14 +132,14 @@ public class TestSimPolicyCloud extends SimSolrCloudTestCase {
     CloudUtil.waitForState(cluster, collectionName, 120, TimeUnit.SECONDS,
         CloudUtil.clusterShape(1, 1, false, true));
 
-    getCollectionState(collectionName).forEachReplica((s, replica) -> assertEquals(nodeId, replica.getNode()));
+    getCollectionState(collectionName).forEachReplica((s, replica) -> assertEquals(nodeId, replica.getNodeName()));
 
     CollectionAdminRequest.addReplicaToShard(collectionName, "shard1").process(solrClient);
     CloudUtil.waitForState(cluster,
         collectionName, 120l, TimeUnit.SECONDS,
         (liveNodes, collectionState) -> collectionState.getReplicas().size() == 2);
 
-    getCollectionState(collectionName).forEachReplica((s, replica) -> assertEquals(nodeId, replica.getNode()));
+    getCollectionState(collectionName).forEachReplica((s, replica) -> assertEquals(nodeId, replica.getNodeName()));
   }
 
   public void testCreateCollectionSplitShard() throws Exception  {
@@ -230,7 +229,7 @@ public class TestSimPolicyCloud extends SimSolrCloudTestCase {
     DocCollection collection = getCollectionState("metricsTest");
     List<String> tags = Arrays.asList("metrics:solr.node:ADMIN./admin/authorization.clientErrors:count",
         "metrics:solr.jvm:buffers.direct.Count");
-    Map<String, Object> val = cluster.getNodeStateProvider().getNodeValues(collection.getReplicas().get(0).getNode(), tags);
+    Map<String, Object> val = cluster.getNodeStateProvider().getNodeValues(collection.getReplicas().get(0).getNodeName(), tags);
     for (String tag : tags) {
       assertNotNull( "missing : "+ tag , val.get(tag));
     }
@@ -279,15 +278,15 @@ public class TestSimPolicyCloud extends SimSolrCloudTestCase {
     BiConsumer<String, Replica> verifyReplicas = (s, replica) -> {
       switch (replica.getType()) {
         case NRT: {
-          assertTrue("NRT replica should be in " + nrtNodeName, replica.getNode().equals(nrtNodeName));
+          assertTrue("NRT replica should be in " + nrtNodeName, replica.getNodeName().equals(nrtNodeName));
           break;
         }
         case TLOG: {
-          assertTrue("TLOG replica should be in " + tlogNodeName, replica.getNode().equals(tlogNodeName));
+          assertTrue("TLOG replica should be in " + tlogNodeName, replica.getNodeName().equals(tlogNodeName));
           break;
         }
         case PULL: {
-          assertTrue("PULL replica should be in " + pullNodeName, replica.getNode().equals(pullNodeName));
+          assertTrue("PULL replica should be in " + pullNodeName, replica.getNodeName().equals(pullNodeName));
           break;
         }
       }
@@ -321,14 +320,14 @@ public class TestSimPolicyCloud extends SimSolrCloudTestCase {
     DocCollection coll = getCollectionState("policiesTest");
     assertEquals("c1", coll.getPolicyName());
     assertEquals(2,coll.getReplicas().size());
-    coll.forEachReplica((s, replica) -> assertEquals(nodeId, replica.getNode()));
+    coll.forEachReplica((s, replica) -> assertEquals(nodeId, replica.getNodeName()));
     CollectionAdminRequest.createShard("policiesTest", "s3").process(solrClient);
     CloudUtil.waitForState(cluster, "Timeout waiting for collection to become active", "policiesTest",
         CloudUtil.clusterShape(3, 1));
 
     coll = getCollectionState("policiesTest");
     assertEquals(1, coll.getSlice("s3").getReplicas().size());
-    coll.getSlice("s3").forEach(replica -> assertEquals(nodeId, replica.getNode()));
+    coll.getSlice("s3").forEach(replica -> assertEquals(nodeId, replica.getNodeName()));
   }
 
   public void testDataProvider() throws IOException, SolrServerException, KeeperException, InterruptedException {
@@ -339,7 +338,7 @@ public class TestSimPolicyCloud extends SimSolrCloudTestCase {
         CloudUtil.clusterShape(1, 2, false, true));
     DocCollection rulesCollection = getCollectionState("policiesTest");
 
-    Map<String, Object> val = cluster.getNodeStateProvider().getNodeValues(rulesCollection.getReplicas().get(0).getNode(), Arrays.asList(
+    Map<String, Object> val = cluster.getNodeStateProvider().getNodeValues(rulesCollection.getReplicas().get(0).getNodeName(), Arrays.asList(
         "freedisk",
         "cores",
         "heapUsage",

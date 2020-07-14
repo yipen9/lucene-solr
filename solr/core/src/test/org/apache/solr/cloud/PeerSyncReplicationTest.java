@@ -354,7 +354,7 @@ public class PeerSyncReplicationTest extends AbstractFullDistribZkTestBase {
               .collect(Collectors.toList());
 
       for (Replica replica : replicasToCheck) {
-        if (!clusterState.liveNodesContain(replica.getNode()) || replica.getState() != Replica.State.ACTIVE) {
+        if (!clusterState.liveNodesContain(replica.getNodeName()) || replica.getState() != Replica.State.ACTIVE) {
           allActive = false;
           break;
         }

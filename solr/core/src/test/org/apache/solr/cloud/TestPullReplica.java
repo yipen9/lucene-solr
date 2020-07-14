@@ -593,10 +593,10 @@ public class TestPullReplica extends SolrCloudTestCase {
         if (r.getState() != Replica.State.DOWN && r.getState() != Replica.State.ACTIVE) {
           return false;
         }
-        if (r.getState() == Replica.State.DOWN && liveNodes.contains(r.getNode())) {
+        if (r.getState() == Replica.State.DOWN && liveNodes.contains(r.getNodeName())) {
           return false;
         }
-        if (r.getState() == Replica.State.ACTIVE && !liveNodes.contains(r.getNode())) {
+        if (r.getState() == Replica.State.ACTIVE && !liveNodes.contains(r.getNodeName())) {
           return false;
         }
       }

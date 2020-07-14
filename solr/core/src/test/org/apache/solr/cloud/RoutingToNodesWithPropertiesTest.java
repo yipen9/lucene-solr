@@ -96,9 +96,9 @@ public class RoutingToNodesWithPropertiesTest extends SolrCloudTestCase {
       int numReplicaInZone1 = 0;
       int numReplicaInZone2 = 0;
       for (Replica replica : slice.getReplicas()) {
-        if (zone1Nodes.contains(replica.getNode()))
+        if (zone1Nodes.contains(replica.getNodeName()))
           numReplicaInZone1++;
-        if (zone2Nodes.contains(replica.getNode()))
+        if (zone2Nodes.contains(replica.getNodeName()))
           numReplicaInZone2++;
       }
 

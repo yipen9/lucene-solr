@@ -51,10 +51,17 @@ public class TestDemo extends LuceneTestCase {
     Path indexPath = Files.createTempDirectory("tempIndex");
     try (Directory dir = FSDirectory.open(indexPath)) {
       Analyzer analyzer = new StandardAnalyzer();
-      try (IndexWriter iw = new IndexWriter(dir, new IndexWriterConfig(analyzer))) {
+      IndexWriterConfig config = new IndexWriterConfig(analyzer);
+      config.setUseCompoundFile(false);
+      try (IndexWriter iw = new IndexWriter(dir, config)) {
         Document doc = new Document();
         doc.add(newTextField("fieldname", text, Field.Store.YES));
         iw.addDocument(doc);
+        iw.commit();
+
+        doc.add(newTextField("fieldname1", text, Field.Store.YES));
+        iw.addDocument(doc);
+        iw.commit();
       }
 
       // Now search the index.
@@ -79,6 +86,6 @@ public class TestDemo extends LuceneTestCase {
       }
     }
 
-    IOUtils.rm(indexPath);
+//    IOUtils.rm(indexPath);
   }
 }
